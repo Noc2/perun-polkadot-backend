@@ -36,5 +36,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
 
+      - name: Start Substrate node
+        run: docker run --rm -d --name substrate --net=host perunnetwork/substrate-node
+
+      - name: Wait for Substrate node
+        # Wait for port 9944 to listen.
+        # https://github.com/marketplace/actions/wait-on did not work…
+        run: timeout 25 bash -c "until nc -z 127.0.0.1 9944; do sleep 1; done"
+
       - name: Unit tests
-        run: go test ./...
+        run: go test -timeout 360s -p 1 ./...
+
+      - name: Stop Substrate node
+        run: docker stop substrate
