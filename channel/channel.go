@@ -55,8 +55,6 @@ type (
 	Balance = types.U128
 	// Sig is an off-chain signature.
 	Sig = [SigLen]byte
-	// Sigs are multiple Sig.
-	Sigs = []Sig
 
 	// Params holds the fixed parameters of a channel and uniquely identifies it.
 	// This is a minimized version of a go-perun channel.Params.

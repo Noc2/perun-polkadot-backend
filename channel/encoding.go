@@ -194,7 +194,7 @@ func MakeSig(sig pwallet.Sig) (Sig, error) {
 }
 
 // MakeSigsFromPerun returns Sigs or an error.
-func MakeSigsFromPerun(sigs []pwallet.Sig) (Sigs, error) {
+func MakeSigsFromPerun(sigs []pwallet.Sig) ([]Sig, error) {
 	var err error
 	ret := make([]Sig, len(sigs))
 
