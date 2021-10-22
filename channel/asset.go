@@ -25,12 +25,12 @@ func NewAsset() *Asset {
 	return &Asset{}
 }
 
-// Encode does nothing and returns nil.
+// Encode does nothing and returns nil since the backend has only one asset.
 func (Asset) Encode(io.Writer) error {
 	return nil
 }
 
-// Decode does nothing and returns nil.
+// Decode does nothing and returns nil since the backend has only one asset.
 func (*Asset) Decode(io.Reader) error {
 	return nil
 }
