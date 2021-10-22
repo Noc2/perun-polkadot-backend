@@ -88,7 +88,7 @@ func depositBoth(s *test.Setup, params *pchannel.Params, state *pchannel.State) 
 	for i := 0; i < 2; i++ {
 		myBal := state.Balances[0][i]
 		fReq := pchannel.NewFundingReq(params, state, pchannel.Index(i), state.Balances)
-		_fReq, err := channel.MakeFundingReqFromPerun(fReq)
+		_fReq, err := channel.MakeFundingReq(fReq)
 		require.NoError(s.T, err)
 		fid, _ := _fReq.ID()
 		req := pallet.NewDepositReq(myBal, s.Alice.Acc, fid)

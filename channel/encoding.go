@@ -35,7 +35,7 @@ func ScaleDecode(obj interface{}, data []byte) error {
 	return types.DecodeFromBytes(data, obj)
 }
 
-// MakeBalance returns a new Balance or an error.
+// MakeBalance creates a new Balance.
 func MakeBalance(bal *big.Int) (Balance, error) {
 	if bal.Sign() < 0 || bal.Cmp(MaxBalance.Int) > 0 {
 		return Balance(types.NewU128(*big.NewInt(0))), errors.New("invalid balance")
@@ -43,13 +43,13 @@ func MakeBalance(bal *big.Int) (Balance, error) {
 	return Balance(types.NewU128(*bal)), nil
 }
 
-// MakePerunBalance returns a Perun balance.
+// MakePerunBalance creates a Perun balance.
 func MakePerunBalance(bal Balance) *big.Int {
 	return new(big.Int).Set(bal.Int)
 }
 
-// MakePerunAlloc returns a new Perun allocation and fills unknown fields with
-// default values.
+// MakePerunAlloc creates a new Perun allocation and fills the Locked balances
+// with a default value. It uses the fixed backend asset.
 func MakePerunAlloc(bals []Balance) pchannel.Allocation {
 	return pchannel.Allocation{
 		Assets:   []pchannel.Asset{NewAsset()},
@@ -58,7 +58,7 @@ func MakePerunAlloc(bals []Balance) pchannel.Allocation {
 	}
 }
 
-// MakePerunBalances returns Perun balances by using only one asset.
+// MakePerunBalances creates Perun balances with the fixed backend asset.
 func MakePerunBalances(bals []Balance) pchannel.Balances {
 	ret := make(pchannel.Balances, 1)
 	ret[0] = make([]pchannel.Bal, len(bals))
@@ -69,32 +69,32 @@ func MakePerunBalances(bals []Balance) pchannel.Balances {
 
 }
 
-// MakeChallengeDuration returns a new ChallengeDuration from the argument.
+// MakeChallengeDuration creates a new ChallengeDuration from the argument.
 func MakeChallengeDuration(challengeDuration uint64) ChallengeDuration {
 	return ChallengeDuration(challengeDuration)
 }
 
-// MakePerunChallengeDuration returns a new Perun ChallengeDuration.
+// MakePerunChallengeDuration creates a new Perun ChallengeDuration.
 func MakePerunChallengeDuration(sec ChallengeDuration) uint64 {
 	return uint64(sec)
 }
 
-// MakeDuration returns a new duration from the argument.
+// MakeDuration creates a new duration from the argument.
 func MakeDuration(sec ChallengeDuration) time.Duration {
 	return time.Second * time.Duration(sec)
 }
 
-// MakeTime returns a new time from the argument.
+// MakeTime creates a new time from the argument.
 func MakeTime(sec ChallengeDuration) time.Time {
 	return time.Unix(int64(sec), 0)
 }
 
-// MakeTimeout returns a new timeout.
+// MakeTimeout creates a new timeout.
 func MakeTimeout(sec ChallengeDuration, storage substrate.StorageQueryer) pchannel.Timeout {
 	return substrate.NewTimeout(storage, MakeTime(sec))
 }
 
-// MakeNonce returns a new Nonce or an error iff the argument was out of range.
+// MakeNonce creates a new Nonce or an error if the argument was out of range.
 func MakeNonce(nonce *big.Int) (Nonce, error) {
 	var ret Nonce
 
@@ -109,7 +109,8 @@ func MakeNonce(nonce *big.Int) (Nonce, error) {
 	return ret, nil
 }
 
-// NewState returns a new State and discards unnecessary fields.
+// NewState creates a new State. It discards app data because app-channels are
+// currently not supported.
 func NewState(s *pchannel.State) (*State, error) {
 	if err := s.Valid(); err != nil {
 		return nil, ErrStateIncompatible
@@ -124,8 +125,8 @@ func NewState(s *pchannel.State) (*State, error) {
 	}, err
 }
 
-// NewPerunState returns a new Perun state and fills unknown fields with
-// default values.
+// NewPerunState creates a new Perun state and fills the App-Data with a
+// default value.
 func NewPerunState(s *State) *pchannel.State {
 	return &pchannel.State{
 		ID:         s.Channel,
@@ -136,7 +137,8 @@ func NewPerunState(s *State) *pchannel.State {
 	}
 }
 
-// MakeAlloc converts an Allocation to Balances and only supports one asset.
+// MakeAlloc converts an Allocation to Balances. Currently, it supports only a
+// single asset.
 func MakeAlloc(a *pchannel.Allocation) ([]Balance, error) {
 	var err error
 	ret := make([]Balance, len(a.Balances[0]))
@@ -153,7 +155,7 @@ func MakeAlloc(a *pchannel.Allocation) ([]Balance, error) {
 	return ret, err
 }
 
-// NewWithdrawal returns a new Withdrawal or an error.
+// NewWithdrawal creates a new Withdrawal.
 func NewWithdrawal(cid pchannel.ID, part, receiver pwallet.Address) (*Withdrawal, error) {
 	off, err := MakeOffIdent(part)
 	if err != nil {
@@ -166,7 +168,7 @@ func NewWithdrawal(cid pchannel.ID, part, receiver pwallet.Address) (*Withdrawal
 	}, err
 }
 
-// NewParams returns new Params or an error.
+// NewParams creates backend-specific parameters from generic Perun parameters.
 func NewParams(p *pchannel.Params) (*Params, error) {
 	nonce, err := MakeNonce(p.Nonce)
 	if err != nil {
@@ -181,7 +183,7 @@ func NewParams(p *pchannel.Params) (*Params, error) {
 	}, err
 }
 
-// MakeSig returns a new Sig or an error.
+// MakeSig creates a new Sig.
 func MakeSig(sig pwallet.Sig) (Sig, error) {
 	var ret Sig
 
@@ -193,8 +195,8 @@ func MakeSig(sig pwallet.Sig) (Sig, error) {
 	return ret, nil
 }
 
-// MakeSigsFromPerun returns Sigs or an error.
-func MakeSigsFromPerun(sigs []pwallet.Sig) ([]Sig, error) {
+// MakeSigs creates Sigs.
+func MakeSigs(sigs []pwallet.Sig) ([]Sig, error) {
 	var err error
 	ret := make([]Sig, len(sigs))
 
@@ -207,8 +209,8 @@ func MakeSigsFromPerun(sigs []pwallet.Sig) ([]Sig, error) {
 	return ret, err
 }
 
-// MakeFundingReqFromPerun returns a new Funding or an error.
-func MakeFundingReqFromPerun(req *pchannel.FundingReq) (Funding, error) {
+// MakeFundingReq creates a new Funding.
+func MakeFundingReq(req *pchannel.FundingReq) (Funding, error) {
 	ident, err := MakeOffIdent(req.Params.Parts[req.Idx])
 
 	return Funding{
@@ -217,7 +219,7 @@ func MakeFundingReqFromPerun(req *pchannel.FundingReq) (Funding, error) {
 	}, err
 }
 
-// MakeOnIdent returns a new OnIdentity or an error.
+// MakeOnIdent creates a new OnIdentity.
 func MakeOnIdent(addr pwallet.Address) (OnIdentity, error) {
 	var ret OnIdentity
 	data := addr.Bytes()
@@ -230,7 +232,7 @@ func MakeOnIdent(addr pwallet.Address) (OnIdentity, error) {
 	return ret, nil
 }
 
-// MakeOffIdent returns a new OffIdentity or an error.
+// MakeOffIdent creates a new OffIdentity.
 func MakeOffIdent(part pwallet.Address) (OffIdentity, error) {
 	var ret OffIdentity
 	data := part.Bytes()
@@ -243,7 +245,7 @@ func MakeOffIdent(part pwallet.Address) (OffIdentity, error) {
 	return ret, nil
 }
 
-// MakeOffIdents returns a new []OffIdentity or an error.
+// MakeOffIdents creates a new []OffIdentity.
 func MakeOffIdents(parts []pwallet.Address) ([]OffIdentity, error) {
 	var err error
 	ret := make([]OffIdentity, len(parts))

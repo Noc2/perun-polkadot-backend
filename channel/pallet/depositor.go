@@ -56,7 +56,7 @@ func NewDepositReqFromPerun(req *pchannel.FundingReq, acc pwallet.Account) (*Dep
 		return nil, ErrFundingReqIncompatible
 	}
 	bal := req.Agreement[0][req.Idx]
-	fReq, err := channel.MakeFundingReqFromPerun(req)
+	fReq, err := channel.MakeFundingReq(req)
 	if err != nil {
 		// There is no WithError, so we use the error string here…
 		return nil, errors.WithMessage(ErrFundingReqIncompatible, err.Error())

@@ -136,7 +136,7 @@ func (p *Pallet) BuildDispute(acc pwallet.Account, params *pchannel.Params, stat
 	if err != nil {
 		return nil, err
 	}
-	_sigs, err := channel.MakeSigsFromPerun(sigs)
+	_sigs, err := channel.MakeSigs(sigs)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +160,7 @@ func (p *Pallet) BuildConclude(acc pwallet.Account, params *pchannel.Params, sta
 	if err != nil {
 		return nil, err
 	}
-	_sigs, err := channel.MakeSigsFromPerun(sigs)
+	_sigs, err := channel.MakeSigs(sigs)
 	if err != nil {
 		return nil, err
 	}

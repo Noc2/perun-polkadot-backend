@@ -105,8 +105,8 @@ func (s *Setup) NewCtx() context.Context {
 func NewFundingSetup(params *pchannel.Params, state *pchannel.State) *FundingSetup {
 	reqAlice := pchannel.NewFundingReq(params, state, 0, state.Balances)
 	reqBob := pchannel.NewFundingReq(params, state, 1, state.Balances)
-	fReqAlice, _ := channel.MakeFundingReqFromPerun(reqAlice)
-	fReqBob, _ := channel.MakeFundingReqFromPerun(reqBob)
+	fReqAlice, _ := channel.MakeFundingReq(reqAlice)
+	fReqBob, _ := channel.MakeFundingReq(reqBob)
 	fidAlice, _ := fReqAlice.ID()
 	fidBob, _ := fReqBob.ID()
 	balAlice := state.Balances[0][reqAlice.Idx]
