@@ -135,7 +135,7 @@ func (a *Adjudicator) withdraw(ctx context.Context, req pchannel.AdjudicatorReq)
 	return a.call(ctx, ext)
 }
 
-// Progress returns an error.
+// Progress returns an error because app channels are currently not supported.
 func (a *Adjudicator) Progress(ctx context.Context, req pchannel.ProgressReq) error {
 	return errors.New("progression not supported")
 }
@@ -228,7 +228,7 @@ func (a *Adjudicator) call(ctx context.Context, ext *types.Extrinsic) error {
 	return sub.WaitUntil(ctx, substrate.ExtIsFinal)
 }
 
-// checkRegister returns an `ErrAdjudicatorReqIncompatible` error iff
+// checkRegister returns an `ErrAdjudicatorReqIncompatible` error if
 // the passed request cannot be handled by the Adjudicator.
 func (*Adjudicator) checkRegister(req pchannel.AdjudicatorReq, states []pchannel.SignedState) error {
 	switch {
