@@ -50,7 +50,7 @@ func MakePerunBalance(bal Balance) *big.Int {
 
 // MakePerunAlloc returns a new Perun allocation and fills unknown fields with
 // default values.
-func MakePerunAlloc(bals Balances) pchannel.Allocation {
+func MakePerunAlloc(bals []Balance) pchannel.Allocation {
 	return pchannel.Allocation{
 		Assets:   []pchannel.Asset{NewAsset()},
 		Balances: MakePerunBalances(bals),
@@ -59,7 +59,7 @@ func MakePerunAlloc(bals Balances) pchannel.Allocation {
 }
 
 // MakePerunBalances returns Perun balances by using only one asset.
-func MakePerunBalances(bals Balances) pchannel.Balances {
+func MakePerunBalances(bals []Balance) pchannel.Balances {
 	ret := make(pchannel.Balances, 1)
 	ret[0] = make([]pchannel.Bal, len(bals))
 	for i, bal := range bals {
@@ -137,9 +137,9 @@ func NewPerunState(s *State) *pchannel.State {
 }
 
 // MakeAlloc converts an Allocation to Balances and only supports one asset.
-func MakeAlloc(a *pchannel.Allocation) (Balances, error) {
+func MakeAlloc(a *pchannel.Allocation) ([]Balance, error) {
 	var err error
-	ret := make(Balances, len(a.Balances[0]))
+	ret := make([]Balance, len(a.Balances[0]))
 
 	if len(a.Assets) != 1 || len(a.Balances) != 1 || len(a.Locked) != 0 {
 		return ret, ErrAllocIncompatible

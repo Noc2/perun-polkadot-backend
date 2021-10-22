@@ -53,8 +53,6 @@ type (
 	ChallengeDuration = uint64
 	// Balance is the balance of an on- or off-chain Address.
 	Balance = types.U128
-	// Balances are multiple Balance.
-	Balances = []Balance
 	// Sig is an off-chain signature.
 	Sig = [SigLen]byte
 	// Sigs are multiple Sig.
@@ -79,7 +77,7 @@ type (
 		// Version is the version of the state.
 		Version Version
 		// Balances are the balances of the participants.
-		Balances Balances
+		Balances []Balance
 		// Final whether or not this state is the final one.
 		Final bool
 	}
