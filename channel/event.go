@@ -64,23 +64,6 @@ type (
 	}
 )
 
-// EventIsPerunEvent returns whether an event is a PerunEvent.
-func EventIsPerunEvent(e interface{}) bool {
-	switch e.(type) {
-	case *DepositedEvent:
-		// fallthrough is not possible in type switches
-		return true
-	case *DisputedEvent:
-		return true
-	case *ConcludedEvent:
-		return true
-	case *WithdrawnEvent:
-		return true
-	default:
-		return false
-	}
-}
-
 // EventIsDeposited returns whether an event is a DepositedEvent.
 func EventIsDeposited(e PerunEvent) bool {
 	_, ok := e.(*DepositedEvent)
