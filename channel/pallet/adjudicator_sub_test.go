@@ -61,9 +61,12 @@ func TestAdjudicatorSub_ConcludeFinal(t *testing.T) {
 	s := test.NewSetup(t)
 	adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.Api, test.PastBlocks)
 	req, params, state := newAdjReq(s, true)
+	fSetup := chtest.NewFundingSetup(params, state)
+	dSetup := chtest.NewDepositSetup(fSetup, s.Alice.Acc, s.Bob.Acc)
 
 	// Deposit funds for Alice and bob.
-	depositBoth(s, params, state)
+	err := test.DepositAll(s.NewCtx(), s.Deps, dSetup.DReqs)
+	require.NoError(t, err)
 
 	sub, err := adj.Subscribe(s.NewCtx(), params.ID())
 	require.NoError(t, err)
@@ -81,19 +84,6 @@ func TestAdjudicatorSub_ConcludeFinal(t *testing.T) {
 	ctxtest.AssertTerminatesQuickly(t, func() { noEvent = sub.Next() })
 	assert.Nil(t, noEvent)
 	assert.Nil(t, sub.Err())
-}
-
-func depositBoth(s *test.Setup, params *pchannel.Params, state *pchannel.State) {
-	depositor := pallet.NewDepositor(s.Pallet)
-	for i := 0; i < 2; i++ {
-		myBal := state.Balances[0][i]
-		fReq := pchannel.NewFundingReq(params, state, pchannel.Index(i), state.Balances)
-		_fReq, err := channel.MakeFundingReq(fReq)
-		require.NoError(s.T, err)
-		fid, _ := _fReq.ID()
-		req := pallet.NewDepositReq(myBal, s.Alice.Acc, fid)
-		assert.NoError(s.T, depositor.Deposit(s.NewCtx(), req))
-	}
 }
 
 func newAdjReq(s *test.Setup, final bool) (pchannel.AdjudicatorReq, *pchannel.Params, *pchannel.State) {
