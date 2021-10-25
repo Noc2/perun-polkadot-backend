@@ -24,21 +24,21 @@ import (
 	pwallet "perun.network/go-perun/wallet"
 )
 
-// Backend implements the Backend interface.
-type Backend struct{}
+// backend implements the backend interface.
+// The type is private since it only needs to be exposed as singleton by the
+// `Backend` variable.
+type backend struct{}
 
-// NewBackend returns a new Backend.
-func NewBackend() *Backend {
-	return &Backend{}
-}
+// Backend is the channel backend. Is a singleton since there is only one backend.
+var Backend backend
 
 // CalcID calculates the channelID.
-func (*Backend) CalcID(params *pchannel.Params) (ID pchannel.ID) {
+func (*backend) CalcID(params *pchannel.Params) (ID pchannel.ID) {
 	return CalcID(params)
 }
 
 // Sign signs a state with the passed account.
-func (*Backend) Sign(acc pwallet.Account, state *pchannel.State) (pwallet.Sig, error) {
+func (*backend) Sign(acc pwallet.Account, state *pchannel.State) (pwallet.Sig, error) {
 	_state, err := NewState(state)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (*Backend) Sign(acc pwallet.Account, state *pchannel.State) (pwallet.Sig, e
 }
 
 // Verify verifies a signature on a state.
-func (*Backend) Verify(addr pwallet.Address, state *pchannel.State, sig pwallet.Sig) (bool, error) {
+func (*backend) Verify(addr pwallet.Address, state *pchannel.State, sig pwallet.Sig) (bool, error) {
 	_state, err := NewState(state)
 	if err != nil {
 		return false, err
@@ -64,7 +64,7 @@ func (*Backend) Verify(addr pwallet.Address, state *pchannel.State, sig pwallet.
 }
 
 // DecodeAsset returns the unique asset of the backend. Cannot error
-func (*Backend) DecodeAsset(r io.Reader) (pchannel.Asset, error) {
+func (*backend) DecodeAsset(r io.Reader) (pchannel.Asset, error) {
 	return Asset, nil
 }
 

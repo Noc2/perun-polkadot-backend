@@ -19,5 +19,5 @@ import (
 )
 
 func init() {
-	channel.SetBackend(new(Backend))
+	channel.SetBackend(new(backend))
 }
