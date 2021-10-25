@@ -52,7 +52,7 @@ func MakePerunBalance(bal Balance) *big.Int {
 // with a default value. It uses the fixed backend asset.
 func MakePerunAlloc(bals []Balance) pchannel.Allocation {
 	return pchannel.Allocation{
-		Assets:   []pchannel.Asset{NewAsset()},
+		Assets:   []pchannel.Asset{Asset},
 		Balances: MakePerunBalances(bals),
 		Locked:   nil,
 	}

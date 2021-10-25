@@ -16,21 +16,20 @@ package channel
 
 import "io"
 
-// Asset is the Asset of the connected substrate chain.
+// asset is the Asset of the connected substrate chain.
 // Implements the Perun Asset interface.
-type Asset struct{}
+// Does not contain any fields since there is only one asset per chain.
+type asset struct{}
 
-// NewAsset returns a new Asset.
-func NewAsset() *Asset {
-	return &Asset{}
-}
+// Asset is the unique asset that is supported by the chain.
+var Asset asset
 
 // Encode does nothing and returns nil since the backend has only one asset.
-func (Asset) Encode(io.Writer) error {
+func (asset) Encode(io.Writer) error {
 	return nil
 }
 
 // Decode does nothing and returns nil since the backend has only one asset.
-func (*Asset) Decode(io.Reader) error {
+func (*asset) Decode(io.Reader) error {
 	return nil
 }

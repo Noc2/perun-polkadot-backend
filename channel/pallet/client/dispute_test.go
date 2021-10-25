@@ -50,7 +50,7 @@ func TestDisputeMalloryCarol(t *testing.T) {
 	execConfig := &clienttest.MalloryCarolExecConfig{
 		BaseExecConfig: clienttest.MakeBaseExecConfig(
 			[2]wire.Address{setup[A].Identity.Address(), setup[B].Identity.Address()},
-			channel.NewAsset(),
+			channel.Asset,
 			[2]*big.Int{big.NewInt(100000000000000), big.NewInt(100000000000000)},
 			pclient.WithoutApp(),
 		),

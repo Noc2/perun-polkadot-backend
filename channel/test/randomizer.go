@@ -35,7 +35,7 @@ const (
 
 // NewRandomAsset returns the only asset that is available.
 func (randomizer) NewRandomAsset(rng *rand.Rand) pchannel.Asset {
-	return channel.NewAsset()
+	return channel.Asset
 }
 
 // WithBalancesRange specifies the Balances range.

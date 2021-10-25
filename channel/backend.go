@@ -63,10 +63,9 @@ func (*Backend) Verify(addr pwallet.Address, state *pchannel.State, sig pwallet.
 	return pwallet.VerifySignature(data, sig, addr)
 }
 
-// DecodeAsset decodes an Asset from the passed reader.
+// DecodeAsset returns the unique asset of the backend. Cannot error
 func (*Backend) DecodeAsset(r io.Reader) (pchannel.Asset, error) {
-	asset := NewAsset()
-	return asset, asset.Decode(r)
+	return Asset, nil
 }
 
 // CalcID calculates the channelID by encoding and hashing the params.
