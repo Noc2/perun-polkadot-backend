@@ -17,7 +17,6 @@ package pallet_test
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -26,9 +25,8 @@ import (
 	"github.com/perun-network/perun-polkadot-backend/channel"
 	"github.com/perun-network/perun-polkadot-backend/channel/pallet"
 	"github.com/perun-network/perun-polkadot-backend/channel/pallet/test"
+	chtest "github.com/perun-network/perun-polkadot-backend/channel/test"
 )
-
-const registerTimeout = 30 * time.Second
 
 func TestAdjudicator_Register(t *testing.T) {
 	s := test.NewSetup(t)
@@ -38,10 +36,8 @@ func TestAdjudicator_Register(t *testing.T) {
 	// Channel is not yet registered
 	s.AssertNoRegistered(state.ID)
 	// Register the channel twice. Register should be idempotent.
-	ctx, cancel := context.WithTimeout(context.Background(), registerTimeout)
-	defer cancel()
-	assert.NoError(t, adj.Register(ctx, req, nil))
-	assert.NoError(t, adj.Register(ctx, req, nil))
+	assert.NoError(t, adj.Register(s.NewCtx(), req, nil))
+	assert.NoError(t, adj.Register(s.NewCtx(), req, nil))
 	// Check on-chain state for the register.
 	_state, err := channel.NewState(state)
 	require.NoError(t, err)
@@ -81,12 +77,11 @@ func TestAdjudicator_Walkthrough(t *testing.T) {
 	err := test.FundAll(s.NewCtx(), s.Funders, fSetup.FReqs)
 	assert.NoError(t, err)
 	// Dispute
-	var next *pchannel.State
 	{
 		// register non-final state
 		require.NoError(t, adjAlice.Register(ctx, req, nil))
 		// Register non-final state with higher version
-		next = req.Tx.State.Clone()
+		next := req.Tx.State.Clone()
 		next.Version++                        // increase version to allow progression
 		test.MixBals(s.Rng, next.Balances[0]) // mix up the balances
 		next.IsFinal = false
