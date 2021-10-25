@@ -78,8 +78,9 @@ func TestAdjudicator_Walkthrough(t *testing.T) {
 	assert.NoError(t, err)
 	// Dispute
 	{
-		// register non-final state
+		// Register non-final state
 		require.NoError(t, adjAlice.Register(ctx, req, nil))
+
 		// Register non-final state with higher version
 		next := req.Tx.State.Clone()
 		next.Version++                        // increase version to allow progression
@@ -88,32 +89,25 @@ func TestAdjudicator_Walkthrough(t *testing.T) {
 		_next, err := channel.NewState(next)
 		require.NoError(t, err)
 		sigs := s.SignState(_next)
-		req = pchannel.AdjudicatorReq{
-			Params:    req.Params,
-			Acc:       s.Bob.Acc,
-			Tx:        pchannel.Transaction{State: next, Sigs: sigs},
-			Idx:       1,
-			Secondary: false,
-		}
+		req.Acc = s.Bob.Acc
+		req.Tx = pchannel.Transaction{State: next, Sigs: sigs}
+		req.Idx = 1
 		require.NoError(t, adjBob.Register(ctx, req, nil))
-		// Register final state higher version
+
+		// Register final state with higher version
 		next = next.Clone()
 		next.Version++ // increase version to allow progression
 		next.IsFinal = true
 		_next, err = channel.NewState(next)
 		require.NoError(t, err)
 		sigs = s.SignState(_next)
-		req = pchannel.AdjudicatorReq{
-			Params:    req.Params,
-			Acc:       s.Bob.Acc,
-			Tx:        pchannel.Transaction{State: next, Sigs: sigs},
-			Idx:       1,
-			Secondary: false,
-		}
-		require.NoError(t, adjBob.Withdraw(ctx, req, nil))
+		req.Tx = pchannel.Transaction{State: next, Sigs: sigs}
 	}
 	// Withdraw
 	{
+		// Bob
+		require.NoError(t, adjBob.Withdraw(ctx, req, nil))
+
 		// Alice
 		req.Idx = 0
 		req.Acc = s.Alice.Acc
