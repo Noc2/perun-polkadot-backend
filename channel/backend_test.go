@@ -29,9 +29,8 @@ import (
 )
 
 func TestBackend_GenericBackend(t *testing.T) {
-	return
 	setup := newSetup(pkgtest.Prng(t))
-	ptest.GenericBackendTest(t, setup)
+	ptest.GenericBackendTest(t, setup, ptest.IgnoreAssets)
 }
 
 func newSetup(rng *rand.Rand) *ptest.Setup {

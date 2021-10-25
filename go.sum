@@ -686,5 +686,7 @@ honnef.co/go/tools v0.0.1-2019.2.3/go.mod h1:a3bituU0lyd329TUQxRnasdCoJDkEUEAqEt
 honnef.co/go/tools v0.1.3/go.mod h1:NgwopIslSNH47DimFoV78dnkksY2EFtX0ajyb3K/las=
 perun.network/go-perun v0.7.1-0.20211013112607-624560fe6ff6 h1:bB8Y1snB37ns6gNFvAcnpWqU7TcTa/Kr38s0U2ghfU0=
 perun.network/go-perun v0.7.1-0.20211013112607-624560fe6ff6/go.mod h1:lOQco9LlHcZozZetqOmcuegu6CDkXRJfV/GS+/fxcHE=
+perun.network/go-perun v0.7.1-0.20211020134606-e5b280976a47 h1:6L5mbvlZm2Q9Jv2bOUiqLpxobbjVn5V2WSvtzyjWzjY=
+perun.network/go-perun v0.7.1-0.20211020134606-e5b280976a47/go.mod h1:lOQco9LlHcZozZetqOmcuegu6CDkXRJfV/GS+/fxcHE=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
 rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=

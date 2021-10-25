@@ -10,7 +10,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
 	github.com/vedhavyas/go-subkey v1.0.2
-	perun.network/go-perun v0.7.1-0.20211013112607-624560fe6ff6
+	perun.network/go-perun v0.7.1-0.20211020134606-e5b280976a47
 )
 
 require (
