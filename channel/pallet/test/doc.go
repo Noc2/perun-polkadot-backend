@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package test provides helper functions and setup to test the pallet package.
+// Package test provides helper and setup functions to test the pallet package.
 package test
