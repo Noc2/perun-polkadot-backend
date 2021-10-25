@@ -50,21 +50,12 @@ func TestAdjudicator_Register(t *testing.T) {
 
 func TestAdjudicator_ConcludeFinal(t *testing.T) {
 	s := test.NewSetup(t)
-	req, _, _ := newAdjReq(s, true)
+	req, params, state := newAdjReq(s, true)
+	fSetup := chtest.NewFundingSetup(params, state)
 
 	// Fund
-	{
-		// Alice
-		fAlice := pallet.NewFunder(s.Pallet, s.Alice.Acc, test.PastBlocks)
-		rAlice := pchannel.NewFundingReq(req.Params, req.Tx.State, 0, req.Tx.Balances)
-
-		// Bob
-		fBob := pallet.NewFunder(s.Pallet, s.Bob.Acc, test.PastBlocks)
-		rBob := pchannel.NewFundingReq(req.Params, req.Tx.State, 1, req.Tx.Balances)
-
-		err := test.FundAll(s.NewCtx(), []*pallet.Funder{fAlice, fBob}, []*pchannel.FundingReq{rAlice, rBob})
-		assert.NoError(t, err)
-	}
+	err := test.FundAll(s.NewCtx(), s.Funders, fSetup.FReqs)
+	assert.NoError(t, err)
 	// Withdraw
 	{
 		// Alice
@@ -79,25 +70,16 @@ func TestAdjudicator_ConcludeFinal(t *testing.T) {
 
 func TestAdjudicator_Walkthrough(t *testing.T) {
 	s := test.NewSetup(t)
-	req, _, _ := newAdjReq(s, false)
+	req, params, state := newAdjReq(s, false)
+	fSetup := chtest.NewFundingSetup(params, state)
 	adjAlice := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.Api, test.PastBlocks)
 	adjBob := pallet.NewAdjudicator(s.Bob.Acc, s.Pallet, s.Api, test.PastBlocks)
 	ctx, cancel := context.WithTimeout(context.Background(), 100*s.BlockTime)
 	defer cancel()
 
 	// Fund
-	{
-		// Alice
-		fAlice := pallet.NewFunder(s.Pallet, s.Alice.Acc, test.PastBlocks)
-		rAlice := pchannel.NewFundingReq(req.Params, req.Tx.State, 0, req.Tx.Balances)
-
-		// Bob
-		fBob := pallet.NewFunder(s.Pallet, s.Bob.Acc, test.PastBlocks)
-		rBob := pchannel.NewFundingReq(req.Params, req.Tx.State, 1, req.Tx.Balances)
-
-		err := test.FundAll(ctx, []*pallet.Funder{fAlice, fBob}, []*pchannel.FundingReq{rAlice, rBob})
-		assert.NoError(t, err)
-	}
+	err := test.FundAll(s.NewCtx(), s.Funders, fSetup.FReqs)
+	assert.NoError(t, err)
 	// Dispute
 	var next *pchannel.State
 	{
