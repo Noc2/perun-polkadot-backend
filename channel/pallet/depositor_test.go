@@ -25,21 +25,19 @@ import (
 func TestDepositor_Deposit(t *testing.T) {
 	s := test.NewSetup(t)
 	params, state := s.NewRandomParamAndState()
-	fSetup := chtest.NewFundingSetup(params, state)
-	dSetup := chtest.NewDepositSetup(fSetup, s.Alice.Acc, s.Bob.Acc)
+	dSetup := chtest.NewDepositSetup(params, state, s.Alice.Acc, s.Bob.Acc)
 
 	err := test.DepositAll(s.NewCtx(), s.Deps, dSetup.DReqs)
 	require.NoError(t, err)
 
 	// Check the on-chain balance.
-	s.AssertDeposits(fSetup.Fids, fSetup.FinalBals)
+	s.AssertDeposits(dSetup.Fids, dSetup.FinalBals)
 }
 
 func TestDepositor_DepositMultiple(t *testing.T) {
 	s := test.NewSetup(t)
 	params, state := s.NewRandomParamAndState()
-	fSetup := chtest.NewFundingSetup(params, state)
-	dSetup := chtest.NewDepositSetup(fSetup, s.Alice.Acc, s.Bob.Acc)
+	dSetup := chtest.NewDepositSetup(params, state, s.Alice.Acc, s.Bob.Acc)
 
 	err := test.DepositAll(s.NewCtx(), s.Deps, dSetup.DReqs)
 	require.NoError(t, err)
@@ -47,6 +45,6 @@ func TestDepositor_DepositMultiple(t *testing.T) {
 	require.NoError(t, err)
 
 	// Check the on-chain balance.
-	finalBals := test.Multiply(2, fSetup.FinalBals...)
-	s.AssertDeposits(fSetup.Fids, finalBals)
+	finalBals := test.Multiply(2, dSetup.FinalBals...)
+	s.AssertDeposits(dSetup.Fids, finalBals)
 }

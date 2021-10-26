@@ -61,8 +61,7 @@ func TestAdjudicatorSub_ConcludeFinal(t *testing.T) {
 	s := test.NewSetup(t)
 	adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.API, test.PastBlocks)
 	req, params, state := newAdjReq(s, true)
-	fSetup := chtest.NewFundingSetup(params, state)
-	dSetup := chtest.NewDepositSetup(fSetup, s.Alice.Acc, s.Bob.Acc)
+	dSetup := chtest.NewDepositSetup(params, state, s.Alice.Acc, s.Bob.Acc)
 
 	// Deposit funds for Alice and bob.
 	err := test.DepositAll(s.NewCtx(), s.Deps, dSetup.DReqs)

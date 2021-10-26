@@ -21,9 +21,9 @@ import (
 
 	pclient "perun.network/go-perun/client"
 	clienttest "perun.network/go-perun/client/test"
-	"perun.network/go-perun/log"
 	"perun.network/go-perun/wire"
 
+	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 	"github.com/perun-network/perun-polkadot-backend/channel"
 	"github.com/perun-network/perun-polkadot-backend/channel/pallet/test"
 	"github.com/perun-network/perun-polkadot-backend/wallet"
@@ -56,20 +56,19 @@ func TestHappyAliceBob(t *testing.T) {
 		TxAmounts:   [2]*big.Int{big.NewInt(2000000000000), big.NewInt(0)},
 	}
 
-	// Compensate the fees of the extrinsics.
+	// Compensate for the fees of the extrinsics.
 	epsilon := new(big.Int).SetUint64(test.DefaultExtFee * 3)
+	// Amount that will be send from Alice to Bob.
 	aliceToBob := big.NewInt(int64(execConfig.NumPayments[A])*execConfig.TxAmounts[A].Int64() - int64(execConfig.NumPayments[B])*execConfig.TxAmounts[B].Int64())
-
-	test := func() {
+	// Amount that will be send from Bob to Alice.
+	bobToAlice := new(big.Int).Neg(aliceToBob)
+	// Expected balance changes of the accounts.
+	deltas := map[types.AccountID]*big.Int{
+		wallet.AsAddr(s.Alice.Acc.Address()).AccountID(): aliceToBob,
+		wallet.AsAddr(s.Bob.Acc.Address()).AccountID():   bobToAlice,
+	}
+	s.AssertBalanceChanges(deltas, epsilon, func() {
 		err := clienttest.ExecuteTwoPartyTest(ctx, role, execConfig)
 		assert.NoError(t, err)
-	}
-	// aliceToBob is transferred from alice to bob.
-	s.AssertBalanceChange(wallet.AsAddr(s.Alice.Acc.Address()).AccountID(), aliceToBob, epsilon,
-		func() {
-			bobToAlice := new(big.Int).Neg(aliceToBob)
-			// bobToAlice is transferred from bob to alice.
-			s.AssertBalanceChange(wallet.AsAddr(s.Bob.Acc.Address()).AccountID(), bobToAlice, epsilon, test)
-		})
-	log.Info("HABT test done")
+	})
 }

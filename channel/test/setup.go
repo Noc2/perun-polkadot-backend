@@ -44,20 +44,14 @@ type (
 		*subtest.Setup
 	}
 
-	// FundingSetup is the setup for funder tests.
-	FundingSetup struct {
+	// DepositSetup is the setup for depositor and funder tests.
+	DepositSetup struct {
 		*Setup
 
 		FReqs     []*pchannel.FundingReq
 		Fids      []channel.FundingID
 		FinalBals []pchannel.Bal
-	}
-
-	// DepositSetup is the setup for depositor tests.
-	DepositSetup struct {
-		*FundingSetup
-
-		DReqs []*pallet.DepositReq
+		DReqs     []*pallet.DepositReq
 	}
 )
 
@@ -88,7 +82,6 @@ func (s *Setup) SignState(state *channel.State) []wallet.Sig {
 // NewRandomParamAndState generates compatible Params and State.
 func (s *Setup) NewRandomParamAndState() (*pchannel.Params, *pchannel.State) {
 	params, state := pchtest.NewRandomParamsAndState(s.Rng, DefaultRandomOpts())
-	state.Allocation.Balances = state.Balances
 	return params, state
 }
 
@@ -101,8 +94,8 @@ func (s *Setup) NewCtx() context.Context {
 	return ctx
 }
 
-// NewFundingSetup returns a new FundingSetup.
-func NewFundingSetup(params *pchannel.Params, state *pchannel.State) *FundingSetup {
+// NewDepositSetup returns a new DepositSetup.
+func NewDepositSetup(params *pchannel.Params, state *pchannel.State, accs ...wallet.Account) *DepositSetup {
 	reqAlice := pchannel.NewFundingReq(params, state, 0, state.Balances)
 	reqBob := pchannel.NewFundingReq(params, state, 1, state.Balances)
 	fReqAlice, _ := channel.MakeFundingReq(reqAlice)
@@ -112,18 +105,15 @@ func NewFundingSetup(params *pchannel.Params, state *pchannel.State) *FundingSet
 	balAlice := state.Balances[0][reqAlice.Idx]
 	balBob := state.Balances[0][reqBob.Idx]
 
-	return &FundingSetup{
+	fReqs := []*pchannel.FundingReq{reqAlice, reqBob}
+	dReqs := make([]*pallet.DepositReq, len(accs))
+	for i := range accs {
+		dReqs[i], _ = pallet.NewDepositReqFromPerun(fReqs[i], accs[i])
+	}
+	return &DepositSetup{
 		FReqs:     []*pchannel.FundingReq{reqAlice, reqBob},
 		Fids:      []channel.FundingID{fidAlice, fidBob},
 		FinalBals: []pchannel.Bal{balAlice, balBob},
+		DReqs:     dReqs,
 	}
-}
-
-// NewDepositSetup returns a new DepositSetup.
-func NewDepositSetup(s *FundingSetup, accs ...wallet.Account) *DepositSetup {
-	reqs := make([]*pallet.DepositReq, len(accs))
-	for i := range accs {
-		reqs[i], _ = pallet.NewDepositReqFromPerun(s.FReqs[i], accs[i])
-	}
-	return &DepositSetup{DReqs: reqs}
 }

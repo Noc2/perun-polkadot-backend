@@ -37,9 +37,11 @@ cd perun-polkadot-backend
 
 3. Run all tests:  
 ```sh
-go test ./...
+go test -p 1 ./...
 ```
-This can take while but should eventually finish successfully. The long testing time results from the block-time of the node, which is set to one second.
+This can take while but should eventually finish successfully. The long testing time results from the block-time of the node, which is set to one second.  
+The `-p 1` flag is important, since the tests otherwise are started in parallel and mess up
+the account nonce.
 
 ### Test debugging
 

@@ -33,6 +33,7 @@ func main() {
 	logSystemEvents(api, log.Get())
 }
 
+// logSystemEvents logs all System events into the passed logger.
 func logSystemEvents(api *substrate.API, log logrus.StdLogger) {
 	meta := api.Metadata()
 	// Subscribe to system events via storage

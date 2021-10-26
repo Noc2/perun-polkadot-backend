@@ -47,10 +47,10 @@ func TestAdjudicator_Register(t *testing.T) {
 func TestAdjudicator_ConcludeFinal(t *testing.T) {
 	s := test.NewSetup(t)
 	req, params, state := newAdjReq(s, true)
-	fSetup := chtest.NewFundingSetup(params, state)
+	dSetup := chtest.NewDepositSetup(params, state)
 
 	// Fund
-	err := test.FundAll(s.NewCtx(), s.Funders, fSetup.FReqs)
+	err := test.FundAll(s.NewCtx(), s.Funders, dSetup.FReqs)
 	assert.NoError(t, err)
 	// Withdraw
 	{
@@ -67,14 +67,14 @@ func TestAdjudicator_ConcludeFinal(t *testing.T) {
 func TestAdjudicator_Walkthrough(t *testing.T) {
 	s := test.NewSetup(t)
 	req, params, state := newAdjReq(s, false)
-	fSetup := chtest.NewFundingSetup(params, state)
+	dSetup := chtest.NewDepositSetup(params, state)
 	adjAlice := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.API, test.PastBlocks)
 	adjBob := pallet.NewAdjudicator(s.Bob.Acc, s.Pallet, s.API, test.PastBlocks)
 	ctx, cancel := context.WithTimeout(context.Background(), 100*s.BlockTime)
 	defer cancel()
 
 	// Fund
-	err := test.FundAll(s.NewCtx(), s.Funders, fSetup.FReqs)
+	err := test.FundAll(s.NewCtx(), s.Funders, dSetup.FReqs)
 	assert.NoError(t, err)
 	// Dispute
 	{

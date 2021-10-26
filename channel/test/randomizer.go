@@ -50,6 +50,6 @@ func DefaultRandomOpts() pchtest.RandomOpt {
 	return WithBalancesRange().
 		Append(pchtest.WithoutApp()).
 		Append(pchtest.WithNumLocked(0)).
-		Append(pchtest.WithNumAssets(1)).
+		Append(pchtest.WithAssets(channel.Asset)).
 		Append(pchtest.WithNumParts(2))
 }

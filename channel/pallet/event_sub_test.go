@@ -32,8 +32,7 @@ func TestPalletEventSub_Deposit(t *testing.T) {
 	numEvents := 3 // Number of events that the EventSub will be tested with.
 	s := test.NewSetup(t)
 	params, state := s.NewRandomParamAndState()
-	fSetup := chtest.NewFundingSetup(params, state)
-	dSetup := chtest.NewDepositSetup(fSetup, s.Alice.Acc)
+	dSetup := chtest.NewDepositSetup(params, state, s.Alice.Acc)
 
 	// Subscribe to 'deposited' events for the correct funding ID.
 	sub, err := s.Pallet.Subscribe(func(_event channel.PerunEvent) bool {
@@ -41,7 +40,7 @@ func TestPalletEventSub_Deposit(t *testing.T) {
 		if !ok {
 			return false
 		}
-		return event.Fid == fSetup.Fids[0]
+		return event.Fid == dSetup.Fids[0]
 	}, 0)
 	require.NoError(t, err)
 

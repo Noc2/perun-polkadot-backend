@@ -29,41 +29,41 @@ import (
 func TestFunder_Fund(t *testing.T) {
 	s := test.NewSetup(t)
 	params, state := s.NewRandomParamAndState()
-	fSetup := chtest.NewFundingSetup(params, state)
+	dSetup := chtest.NewDepositSetup(params, state)
 
-	err := test.FundAll(s.NewCtx(), s.Funders, fSetup.FReqs)
+	err := test.FundAll(s.NewCtx(), s.Funders, dSetup.FReqs)
 	require.NoError(t, err)
 
 	// Check the on-chain balance.
-	s.AssertDeposits(fSetup.Fids, fSetup.FinalBals)
+	s.AssertDeposits(dSetup.Fids, dSetup.FinalBals)
 }
 
 // TestFunder_FundMultiple checks that funding twice results in twice the balance.
 func TestFunder_FundMultiple(t *testing.T) {
 	s := test.NewSetup(t)
 	params, state := s.NewRandomParamAndState()
-	fSetup := chtest.NewFundingSetup(params, state)
+	dSetup := chtest.NewDepositSetup(params, state)
 
-	err := test.FundAll(s.NewCtx(), s.Funders, fSetup.FReqs)
+	err := test.FundAll(s.NewCtx(), s.Funders, dSetup.FReqs)
 	require.NoError(t, err)
 	// fund again
-	err = test.FundAll(s.NewCtx(), s.Funders, fSetup.FReqs)
+	err = test.FundAll(s.NewCtx(), s.Funders, dSetup.FReqs)
 	require.NoError(t, err)
 
 	// Check the on-chain balance.
-	finalBals := test.Multiply(2, fSetup.FinalBals...)
-	s.AssertDeposits(fSetup.Fids, finalBals)
+	finalBals := test.Multiply(2, dSetup.FinalBals...)
+	s.AssertDeposits(dSetup.Fids, finalBals)
 }
 
 func TestFunder_Timeout(t *testing.T) {
 	s := test.NewSetup(t)
 	params, state := s.NewRandomParamAndState()
-	fSetup := chtest.NewFundingSetup(params, state)
+	dSetup := chtest.NewDepositSetup(params, state)
 
 	// Bob did not fund and times out.
 	wantErr := makeTimeoutErr(1)
 	// Only call Alice's funder.
-	gotErr := s.Funders[0].Fund(s.NewCtx(), *fSetup.FReqs[0])
+	gotErr := s.Funders[0].Fund(s.NewCtx(), *dSetup.FReqs[0])
 	// Check that the funder returned the correct error.
 	assert.True(t, pchannel.IsFundingTimeoutError(gotErr))
 	// Use equality on the error strings since Errors.Is does not work.

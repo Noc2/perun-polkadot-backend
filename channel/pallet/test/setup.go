@@ -95,20 +95,28 @@ func (s *Setup) AssertDeposits(fids []channel.FundingID, bals []*big.Int) {
 
 // AssertBalanceChange checks that an on-chain account gains delta with
 // absolute error of epsilon by executing f.
-func (s *Setup) AssertBalanceChange(addr types.AccountID, delta, epsilon *big.Int, f func()) {
-	// Get the old balance.
-	accInfo, err := s.API.AccountInfo(addr)
-	require.NoError(s.T, err)
-	before := accInfo.Free.Int
-	// Change the balances
+func (s *Setup) AssertBalanceChanges(deltas map[types.AccountID]*big.Int, epsilon *big.Int, f func()) {
+	// Get the old balances.
+	before := make(map[types.AccountID]*big.Int)
+	for addr := range deltas {
+		accInfo, err := s.API.AccountInfo(addr)
+		require.NoError(s.T, err)
+		before[addr] = accInfo.Free.Int
+	}
+	// Change the balances.
 	f()
-	// Get the new balance.
-	accInfo, err = s.API.AccountInfo(addr)
-	require.NoError(s.T, err)
-	after := accInfo.Free.Int
+	// Get the new balances.
+	after := make(map[types.AccountID]*big.Int)
+	for addr := range deltas {
+		accInfo, err := s.API.AccountInfo(addr)
+		require.NoError(s.T, err)
+		after[addr] = accInfo.Free.Int
+	}
 	// Check the change.
-	gotDelta := new(big.Int).Sub(before, after)
-	gotEpsilon := new(big.Int).Sub(delta, gotDelta)
-	msg := fmt.Sprintf("gotDelta: %v, wantDelta: %v, gotEps: %v, wantEps: %v", substrate.NewDotFromPlank(gotDelta), substrate.NewDotFromPlank(delta), substrate.NewDotFromPlank(gotEpsilon), substrate.NewDotFromPlank(epsilon))
-	require.True(s.T, gotEpsilon.CmpAbs(epsilon) <= 0, msg)
+	for addr, delta := range deltas {
+		gotDelta := new(big.Int).Sub(before[addr], after[addr])
+		gotEpsilon := new(big.Int).Sub(delta, gotDelta)
+		msg := fmt.Sprintf("Addr: 0x%x, gotDelta: %v, wantDelta: %v, gotEps: %v, wantEps: %v", addr, substrate.NewDotFromPlank(gotDelta), substrate.NewDotFromPlank(delta), substrate.NewDotFromPlank(gotEpsilon), substrate.NewDotFromPlank(epsilon))
+		require.True(s.T, gotEpsilon.CmpAbs(epsilon) <= 0, msg)
+	}
 }

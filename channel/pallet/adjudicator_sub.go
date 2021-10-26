@@ -66,16 +66,12 @@ func (s *AdjudicatorSub) Next() pchannel.AdjudicatorEvent {
 	if s.IsClosed() {
 		return nil
 	}
-	// Save dispute, and non-dispute events since the dispute events need
-	// to be fast-forwarded according to the AdjudicatorSub interface.
-	var lastNonDisp, lastDisp channel.PerunEvent
+	var last channel.PerunEvent
 	// Wait for event or closed.
 	select {
 	case event := <-s.sub.Events():
-		if channel.EventIsDisputed(s.cid)(event) {
-			lastDisp = event
-		} else {
-			lastNonDisp = event
+		if channel.EventIsDisputed(s.cid)(event) || channel.EventIsConcluded(s.cid)(event) {
+			last = event
 		}
 	case <-s.Closed():
 		return nil
@@ -85,10 +81,8 @@ loop:
 	for {
 		select {
 		case event := <-s.sub.Events():
-			if channel.EventIsDisputed(s.cid)(event) {
-				lastDisp = event
-			} else {
-				lastNonDisp = event
+			if channel.EventIsDisputed(s.cid)(event) || channel.EventIsConcluded(s.cid)(event) {
+				last = event
 			}
 		case <-s.Closed():
 			return nil
@@ -97,12 +91,8 @@ loop:
 			break loop
 		}
 	}
-	rawEvent := lastNonDisp
-	if lastDisp != nil {
-		rawEvent = lastDisp
-	}
 	// Convert event.
-	event, err := s.makePerunEvent(rawEvent)
+	event, err := s.makePerunEvent(last)
 	if err != nil {
 		s.err <- err
 		_ = s.Close()
