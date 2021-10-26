@@ -19,9 +19,6 @@ It enables *go-perun* applications to create state-channels on [Polkadot] by con
   * `sr25519/` *Schnorrkel-Ristretto Ed25519* wallet
 * `pkg/` 3rd-party helpers
 * `client/` helper functions for setting up a *go-perun* client
-* `cmd/` console commands for debugging
-  * `balance_events/` logs balance changes for dev accounts
-  * `system_events/` logs important system events
 * `wallet/sr25519/test/accounts.json` config for testing
 
 ## Development Setup
@@ -43,20 +40,6 @@ This can take while but should eventually finish successfully. The long testing 
 The `-p 1` flag is important, since the tests otherwise are started in parallel and mess up
 the account nonce.
 
-### Test debugging
-
-The substrate CLI node does not output any events or updates to the console.  
-We provide two commands to help with test debugging by logging chain events.  
-
-Monitor balance updates for *Alice'* and *Bobs* account:
-```sh
-go run ./cmd/balance_events
-```
-
-Log succeeded and failed Extrinsics:
-```sh
-go run ./cmd/system_events
-```
 ## Demo
 
 We prepared a [demo CLI node] to play around with payment channels on substrate chains.  
