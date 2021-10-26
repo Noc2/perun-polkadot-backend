@@ -22,6 +22,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestDepositor_NotDeposited(t *testing.T) {
+	s := test.NewSetup(t)
+	params, state := s.NewRandomParamAndState()
+	dSetup := chtest.NewDepositSetup(params, state, s.Alice.Acc, s.Bob.Acc)
+
+	// Random funding IDs should not be funded.
+	for _, fid := range dSetup.FIDs {
+		s.AssertNoDeposit(fid)
+	}
+}
+
 func TestDepositor_Deposit(t *testing.T) {
 	s := test.NewSetup(t)
 	params, state := s.NewRandomParamAndState()
@@ -31,20 +42,21 @@ func TestDepositor_Deposit(t *testing.T) {
 	require.NoError(t, err)
 
 	// Check the on-chain balance.
-	s.AssertDeposits(dSetup.Fids, dSetup.FinalBals)
+	s.AssertDeposits(dSetup.FIDs, dSetup.FinalBals)
 }
 
 func TestDepositor_DepositMultiple(t *testing.T) {
 	s := test.NewSetup(t)
 	params, state := s.NewRandomParamAndState()
 	dSetup := chtest.NewDepositSetup(params, state, s.Alice.Acc, s.Bob.Acc)
+	ctx := s.NewCtx()
 
-	err := test.DepositAll(s.NewCtx(), s.Deps, dSetup.DReqs)
+	err := test.DepositAll(ctx, s.Deps, dSetup.DReqs)
 	require.NoError(t, err)
-	err = test.DepositAll(s.NewCtx(), s.Deps, dSetup.DReqs)
+	err = test.DepositAll(ctx, s.Deps, dSetup.DReqs)
 	require.NoError(t, err)
 
 	// Check the on-chain balance.
 	finalBals := test.Multiply(2, dSetup.FinalBals...)
-	s.AssertDeposits(dSetup.Fids, finalBals)
+	s.AssertDeposits(dSetup.FIDs, finalBals)
 }

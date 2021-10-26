@@ -28,16 +28,25 @@ import (
 	chtest "github.com/perun-network/perun-polkadot-backend/channel/test"
 )
 
+func TestAdjudicator_NotRegistered(t *testing.T) {
+	s := test.NewSetup(t)
+	_, state := s.NewRandomParamAndState()
+
+	// A random channel should not be registered.
+	s.AssertNoRegistered(state.ID)
+}
+
 func TestAdjudicator_Register(t *testing.T) {
 	s := test.NewSetup(t)
 	adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.API, 50)
 	req, _, state := newAdjReq(s, false)
+	ctx := s.NewCtx()
 
 	// Channel is not yet registered
 	s.AssertNoRegistered(state.ID)
 	// Register the channel twice. Register should be idempotent.
-	assert.NoError(t, adj.Register(s.NewCtx(), req, nil))
-	assert.NoError(t, adj.Register(s.NewCtx(), req, nil))
+	assert.NoError(t, adj.Register(ctx, req, nil))
+	assert.NoError(t, adj.Register(ctx, req, nil))
 	// Check on-chain state for the register.
 	_state, err := channel.NewState(state)
 	require.NoError(t, err)
@@ -48,19 +57,20 @@ func TestAdjudicator_ConcludeFinal(t *testing.T) {
 	s := test.NewSetup(t)
 	req, params, state := newAdjReq(s, true)
 	dSetup := chtest.NewDepositSetup(params, state)
+	ctx := s.NewCtx()
 
 	// Fund
-	err := test.FundAll(s.NewCtx(), s.Funders, dSetup.FReqs)
+	err := test.FundAll(ctx, s.Funders, dSetup.FReqs)
 	assert.NoError(t, err)
 	// Withdraw
 	{
 		// Alice
 		adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.API, test.PastBlocks)
-		assert.NoError(t, adj.Withdraw(s.NewCtx(), req, nil))
+		assert.NoError(t, adj.Withdraw(ctx, req, nil))
 		req.Idx = 1
 		req.Acc = s.Bob.Acc
 		adj = pallet.NewAdjudicator(s.Bob.Acc, s.Pallet, s.API, test.PastBlocks)
-		assert.NoError(t, adj.Withdraw(s.NewCtx(), req, nil))
+		assert.NoError(t, adj.Withdraw(ctx, req, nil))
 	}
 }
 
@@ -74,7 +84,7 @@ func TestAdjudicator_Walkthrough(t *testing.T) {
 	defer cancel()
 
 	// Fund
-	err := test.FundAll(s.NewCtx(), s.Funders, dSetup.FReqs)
+	err := test.FundAll(ctx, s.Funders, dSetup.FReqs)
 	assert.NoError(t, err)
 	// Dispute
 	{

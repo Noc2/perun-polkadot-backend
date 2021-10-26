@@ -32,8 +32,10 @@ type (
 
 	// StorageQueryer can be used to query the on-chain state.
 	StorageQueryer interface {
-		// QueryOne queries the given keys and returns one result.
-		// Errors if more than one or no result was found.
+		// QueryOne queries the storage and expects to read at least one value.
+		// PastBlocks defines how many blocks into the past the query should look.
+		// Returns the latest value that it read or an error if none was found
+		// within the last `pastBlocks` blocks.
 		QueryOne(pastBlocks gsrpc.BlockNumber, keys ...gsrpc.StorageKey) (*gsrpc.KeyValueOption, error)
 
 		// Subscribe subscribes to the changes of a storage key.

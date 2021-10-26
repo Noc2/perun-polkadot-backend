@@ -35,7 +35,11 @@ func TestHappyAliceBob(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), TestTimeoutBlocks*s.BlockTime)
 	defer cancel()
 
-	const A, B = 0, 1 // Indices of Alice and Bob
+	const (
+		A, B = 0, 1 // Indices of Alice and Bob
+		// Maximal number of Extrinsics that a participant should send during the test.
+		MaxNumExtSent = 3
+	)
 	var (
 		name = [2]string{"Alice", "Bob"}
 		role [2]clienttest.Executer
@@ -57,7 +61,7 @@ func TestHappyAliceBob(t *testing.T) {
 	}
 
 	// Compensate for the fees of the extrinsics.
-	epsilon := new(big.Int).SetUint64(test.DefaultExtFee * 3)
+	epsilon := new(big.Int).SetUint64(test.DefaultExtFee * MaxNumExtSent)
 	// Amount that will be send from Alice to Bob.
 	aliceToBob := big.NewInt(int64(execConfig.NumPayments[A])*execConfig.TxAmounts[A].Int64() - int64(execConfig.NumPayments[B])*execConfig.TxAmounts[B].Int64())
 	// Amount that will be send from Bob to Alice.

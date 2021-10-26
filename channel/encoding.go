@@ -90,7 +90,7 @@ func MakeTime(sec ChallengeDuration) time.Time {
 
 // MakeTimeout creates a new timeout.
 func MakeTimeout(sec ChallengeDuration, storage substrate.StorageQueryer) pchannel.Timeout {
-	return substrate.NewTimeout(storage, MakeTime(sec))
+	return substrate.NewTimeout(storage, MakeTime(sec), substrate.DefaultTimeoutPollInterval)
 }
 
 // MakeNonce creates a new Nonce or an error if the argument was out of range.

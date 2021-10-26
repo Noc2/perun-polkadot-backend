@@ -33,6 +33,7 @@ func TestPalletEventSub_Deposit(t *testing.T) {
 	s := test.NewSetup(t)
 	params, state := s.NewRandomParamAndState()
 	dSetup := chtest.NewDepositSetup(params, state, s.Alice.Acc)
+	ctx := s.NewCtx()
 
 	// Subscribe to 'deposited' events for the correct funding ID.
 	sub, err := s.Pallet.Subscribe(func(_event channel.PerunEvent) bool {
@@ -40,13 +41,13 @@ func TestPalletEventSub_Deposit(t *testing.T) {
 		if !ok {
 			return false
 		}
-		return event.Fid == dSetup.Fids[0]
+		return event.Fid == dSetup.FIDs[0]
 	}, 0)
 	require.NoError(t, err)
 
 	// Fund `numEvents` times.
 	for i := 0; i < numEvents; i++ {
-		require.NoError(t, s.Deps[0].Deposit(s.NewCtx(), dSetup.DReqs[0]))
+		require.NoError(t, s.Deps[0].Deposit(ctx, dSetup.DReqs[0]))
 	}
 
 	aliceBal := state.Balances[0][0]

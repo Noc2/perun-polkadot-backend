@@ -86,6 +86,7 @@ func NewEventSource(api *API, pastBlocks types.BlockNumber, keys ...*EventKey) (
 	}
 	source.OnClose(func() {
 		future.Unsubscribe()
+		source.Log().Debug("PalletEventSource stopped")
 	})
 	return source, source.init(eks, pastBlocks)
 }
@@ -109,7 +110,6 @@ func (s *EventSource) init(keys []types.StorageKey, pastBlocks types.BlockNumber
 	}
 	// Listen to all future events.
 	go func() {
-		defer s.Log().Debug("PalletEventSource stopped")
 		defer close(s.err)
 		defer s.Close()
 

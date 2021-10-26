@@ -1,5 +1,5 @@
 {
 	"network_id": 42,
-	"block_time_ms": 1000,
+	"block_time_ms": 500,
 	"chain_url": "ws://127.0.0.1:9944"
 }

@@ -16,9 +16,6 @@ package substrate
 
 import "github.com/centrifuge/go-substrate-rpc-client/v3/types"
 
-// AccountInfoLen is the length of an AccountInfo in byte.
-const AccountInfoLen = 80
-
 // AccountInfo replaces substrate.AccountInfo since it is outdated.
 // This is advised by the GSRPC team.
 type AccountInfo struct {

@@ -45,6 +45,8 @@ jobs:
         run: timeout 25 bash -c "until nc -z 127.0.0.1 9944; do sleep 1; done"
 
       - name: Unit tests
+        # Running the go tests with the `-p 1` flag is important, since the
+        # tests otherwise are started in parallel and mess up the account nonce.
         run: go test -timeout 360s -p 1 ./...
 
       - name: Stop Substrate node

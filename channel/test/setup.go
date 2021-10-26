@@ -49,14 +49,14 @@ type (
 		*Setup
 
 		FReqs     []*pchannel.FundingReq
-		Fids      []channel.FundingID
+		FIDs      []channel.FundingID
 		FinalBals []pchannel.Bal
 		DReqs     []*pallet.DepositReq
 	}
 )
 
 // DefaultTestTimeout default timeout for a test in block-time.
-var DefaultTestTimeout = 10
+var DefaultTestTimeout = 50
 
 // NewSetup returns a new setup and assumes that the sr25519 wallet is used.
 func NewSetup(t *testing.T) *Setup {
@@ -112,7 +112,7 @@ func NewDepositSetup(params *pchannel.Params, state *pchannel.State, accs ...wal
 	}
 	return &DepositSetup{
 		FReqs:     []*pchannel.FundingReq{reqAlice, reqBob},
-		Fids:      []channel.FundingID{fidAlice, fidBob},
+		FIDs:      []channel.FundingID{fidAlice, fidBob},
 		FinalBals: []pchannel.Bal{balAlice, balBob},
 		DReqs:     dReqs,
 	}

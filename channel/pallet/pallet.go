@@ -49,6 +49,11 @@ var (
 	Conclude = substrate.NewExtName(PerunPallet, "conclude")
 	// Withdraw is the name of the withdraw function of the pallet.
 	Withdraw = substrate.NewExtName(PerunPallet, "withdraw")
+
+	// ErrNoDeposit no deposit could be found.
+	ErrNoDeposit = errors.New("no deposit found")
+	// ErrNoRegisteredState no registered state could be found.
+	ErrNoRegisteredState = errors.New("no registered state")
 )
 
 // NewPallet returns a new Pallet.
@@ -71,8 +76,8 @@ func (p *Pallet) Subscribe(f EventPredicate, pastBlocks types.BlockNumber) (*Eve
 	return NewEventSub(source, p.meta, f), nil
 }
 
-// QueryDeposit returns the deposit for a funding ID or
-// nil if no deposit was found.
+// QueryDeposit returns the deposit for a funding ID
+// or ErrNoDeposit if no deposit was found.
 func (p *Pallet) QueryDeposit(fid channel.FundingID, storage substrate.StorageQueryer, pastBlocks types.BlockNumber) (*channel.Balance, error) {
 	// Create the query.
 	key, err := p.BuildQuery("Deposits", fid[:])
@@ -86,7 +91,7 @@ func (p *Pallet) QueryDeposit(fid channel.FundingID, storage substrate.StorageQu
 		return nil, err
 	}
 	if len(res.StorageData) == 0 {
-		return nil, errors.New("no result from query")
+		return nil, ErrNoDeposit
 	}
 	// Decode the result as a Balance.
 	ret := new(channel.Balance)
@@ -94,7 +99,7 @@ func (p *Pallet) QueryDeposit(fid channel.FundingID, storage substrate.StorageQu
 }
 
 // QueryStateRegister returns the registered state of a channel
-// or nil if no state was found.
+// or ErrNoRegisteredState if no state was found.
 func (p *Pallet) QueryStateRegister(cid channel.ChannelID, storage substrate.StorageQueryer, pastBlocks types.BlockNumber) (*channel.RegisteredState, error) {
 	// Create the query.
 	key, err := p.BuildQuery("StateRegister", cid[:])
@@ -105,10 +110,10 @@ func (p *Pallet) QueryStateRegister(cid channel.ChannelID, storage substrate.Sto
 	// Retrieve the last value, beginning at pastBlocks.
 	res, err := storage.QueryOne(pastBlocks, key)
 	if err != nil {
-		return nil, errors.New("no result from query")
+		return nil, err
 	}
 	if len(res.StorageData) == 0 {
-		return nil, nil
+		return nil, ErrNoRegisteredState
 	}
 	// Decode the result as a RegisteredState.
 	ret := new(channel.RegisteredState)

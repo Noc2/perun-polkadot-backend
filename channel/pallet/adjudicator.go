@@ -152,7 +152,11 @@ func (a *Adjudicator) ensureConcluded(ctx context.Context, req pchannel.Adjudica
 	// Fetch on-chain dispute.
 	dis, err := a.pallet.QueryStateRegister(req.Params.ID(), a.storage, a.pastBlocks)
 	if err != nil {
-		return err
+		if errors.Is(err, ErrNoRegisteredState) {
+			dis = nil
+		} else {
+			return err
+		}
 	}
 	// Non-final states need to respect the dispute timeout, if there is a dispute.
 	if dis != nil && !req.Tx.IsFinal {
@@ -181,7 +185,7 @@ func (a *Adjudicator) ensureConcluded(ctx context.Context, req pchannel.Adjudica
 	if err := a.waitForConcluded(ctx, sub, req.Tx.ID); err != nil {
 		return err
 	}
-	// Fetch on-chain dispute again since the `Conduded` event
+	// Fetch on-chain dispute again since the `Concluded` event
 	// does not contain the version.
 	dis, err = a.pallet.QueryStateRegister(req.Params.ID(), a.storage, a.pastBlocks)
 	if err != nil {

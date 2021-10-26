@@ -42,8 +42,14 @@ type Setup struct {
 
 const (
 	// DefaultExtFee is a rough cost estimation for one extrinsic.
+	// The value is oriented at the base-fee of a default substrate
+	// node: https://crates.parity.io/frame_support/weights/constants/struct.ExtrinsicBaseWeight.html
+	// The exact value can be configured in the substrate node itself.
+	// More info on weight calculation: https://docs.substrate.io/v3/runtime/weights-and-fees/
 	DefaultExtFee = uint64(125100000)
 	// PastBlocks defines how many past blocks should be queried.
+	// Must be large enough to ensure that event subs can query all past events
+	// of the current test.
 	PastBlocks = 100
 )
 
@@ -65,9 +71,8 @@ func NewSetup(t *testing.T) *Setup {
 
 // AssertNoRegistered checks that the channel is not registered.
 func (s *Setup) AssertNoRegistered(cid channel.ChannelID) {
-	res, err := s.Pallet.QueryStateRegister(cid, s.API, PastBlocks)
-	assert.NoError(s.T, err)
-	assert.Nil(s.T, res)
+	_, err := s.Pallet.QueryStateRegister(cid, s.API, PastBlocks)
+	assert.ErrorIs(s.T, err, pallet.ErrNoRegisteredState)
 }
 
 // AssertRegistered checks that the channel is registered with the passed state
@@ -77,6 +82,12 @@ func (s *Setup) AssertRegistered(state *channel.State, concluded bool) {
 	require.NoError(s.T, err)
 	assert.Equal(s.T, concluded, reg.Concluded)
 	assert.Equal(s.T, *state, reg.State)
+}
+
+// AssertNoDeposit checks that the funding ID holds no amount.
+func (s *Setup) AssertNoDeposit(fid channel.FundingID) {
+	_, err := s.Pallet.QueryDeposit(fid, s.API, PastBlocks)
+	require.ErrorIs(s.T, err, pallet.ErrNoDeposit)
 }
 
 // AssertDeposit checks that the funding ID holds the specified amount.

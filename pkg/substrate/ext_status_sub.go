@@ -20,6 +20,7 @@ import (
 	"github.com/centrifuge/go-substrate-rpc-client/v3/rpc/author"
 	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 	"github.com/pkg/errors"
+	"perun.network/go-perun/log"
 	pkgsync "perun.network/go-perun/pkg/sync"
 )
 
@@ -61,7 +62,9 @@ func (e *ExtStatusSub) WaitUntil(ctx context.Context, until ExtStatusPred) error
 
 // Close closes the subscription.
 func (e *ExtStatusSub) Close() {
-	_ = e.Closer.Close()
+	if err := e.Closer.Close(); err != nil {
+		log.WithError(err).Error("Could not close Closer.")
+	}
 }
 
 // ExtIsFinal returns whether an Extrinsic is final.

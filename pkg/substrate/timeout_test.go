@@ -21,6 +21,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"perun.network/go-perun/log"
 	ctxtest "perun.network/go-perun/pkg/context/test"
 
 	"github.com/perun-network/perun-polkadot-backend/pkg/substrate"
@@ -32,12 +33,15 @@ func TestTimeout(t *testing.T) {
 
 	waitTime := 5 * s.BlockTime
 	deadline := time.Now().Add(waitTime)
-	timeout := substrate.NewTimeout(s.API, deadline)
+	timeout := substrate.NewTimeout(s.API, deadline, substrate.DefaultTimeoutPollInterval)
 
 	var err error
 	assert.False(t, timeout.IsElapsed(context.Background()))
 	ctxtest.AssertNotTerminates(t, waitTime/2, func() {
-		_ = timeout.Wait(context.Background())
+		err := timeout.Wait(context.Background())
+		if err != nil {
+			log.WithError(err).Error("Could not close Closer.")
+		}
 	})
 	assert.False(t, timeout.IsElapsed(context.Background()))
 	ctxtest.AssertTerminates(t, waitTime, func() { err = timeout.Wait(context.Background()) })

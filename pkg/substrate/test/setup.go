@@ -44,6 +44,8 @@ type (
 
 // PastBlocks defines how many blocks into the past the event subs should
 // query.
+// Must be large enough to ensure that event subs can query all past events
+// of the current test.
 const PastBlocks = 100
 
 //go:embed chain.json

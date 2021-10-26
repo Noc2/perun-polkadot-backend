@@ -62,16 +62,17 @@ func TestAdjudicatorSub_ConcludeFinal(t *testing.T) {
 	adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.API, test.PastBlocks)
 	req, params, state := newAdjReq(s, true)
 	dSetup := chtest.NewDepositSetup(params, state, s.Alice.Acc, s.Bob.Acc)
+	ctx := s.NewCtx()
 
 	// Deposit funds for Alice and bob.
-	err := test.DepositAll(s.NewCtx(), s.Deps, dSetup.DReqs)
+	err := test.DepositAll(ctx, s.Deps, dSetup.DReqs)
 	require.NoError(t, err)
 
-	sub, err := adj.Subscribe(s.NewCtx(), params.ID())
+	sub, err := adj.Subscribe(ctx, params.ID())
 	require.NoError(t, err)
 	// Register the channel twice.
-	assert.NoError(t, adj.Withdraw(s.NewCtx(), req, nil))
-	assert.NoError(t, adj.Withdraw(s.NewCtx(), req, nil))
+	assert.NoError(t, adj.Withdraw(ctx, req, nil))
+	assert.NoError(t, adj.Withdraw(ctx, req, nil))
 	// Wait for one Concluded event
 	event := sub.Next().(*pchannel.ConcludedEvent)
 	assert.Equal(t, params.ID(), event.IDV)

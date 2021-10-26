@@ -31,17 +31,18 @@ type (
 	// the blockchain. Implements the Perun Timeout interface.
 	Timeout struct {
 		log.Embedding
-		when    time.Time
-		storage StorageQueryer
+
+		when         time.Time
+		pollInterval time.Duration
+		storage      StorageQueryer
 	}
 
 	// TimePoint as defined by pallet Timestamp.
 	TimePoint uint64
 )
 
-// TimeoutPollInterval defines how often the current time should be polled.
-// This could be optimized by only polling close to the expected timeout.
-var TimeoutPollInterval = time.Second
+// DefaultTimeoutPollInterval default value for the PollInterval of a Timeout.
+const DefaultTimeoutPollInterval = time.Second
 
 // NewExpiredTimeout returns a new ExpiredTimeout.
 func NewExpiredTimeout() *ExpiredTimeout {
@@ -59,17 +60,12 @@ func (*ExpiredTimeout) Wait(context.Context) error {
 }
 
 // NewTimeout returns a new Timeout which expires at the given time.
-func NewTimeout(storage StorageQueryer, when time.Time) *Timeout {
-	return &Timeout{log.MakeEmbedding(log.Get()), when, storage}
+func NewTimeout(storage StorageQueryer, when time.Time, pollInterval time.Duration) *Timeout {
+	return &Timeout{log.MakeEmbedding(log.Get()), when, pollInterval, storage}
 }
 
 // IsElapsed returns whether the timeout is elapsed.
 func (t *Timeout) IsElapsed(context.Context) bool {
-	return t.isElapsed()
-}
-
-// isElapsed returns whether the timeout is elapsed.
-func (t *Timeout) isElapsed() bool {
 	// Get the current time.
 	now, err := t.pollTime()
 	if err != nil {
@@ -94,8 +90,8 @@ func (t *Timeout) Wait(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(TimeoutPollInterval):
-			if t.isElapsed() {
+		case <-time.After(t.pollInterval):
+			if t.IsElapsed(ctx) {
 				return nil
 			}
 		}

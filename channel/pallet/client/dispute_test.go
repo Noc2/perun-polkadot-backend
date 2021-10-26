@@ -37,7 +37,11 @@ func TestDisputeMalloryCarol(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), TestTimeoutBlocks*s.BlockTime)
 	defer cancel()
 
-	const A, B = 0, 1 // Indices of Mallory and Carol
+	const (
+		A, B = 0, 1 // Indices of Mallory and Carol
+		// Maximal number of Extrinsics that a participant should send during the test.
+		MaxNumExtSent = 6
+	)
 	var (
 		name = [2]string{"Mallory", "Carol"}
 		role [2]clienttest.Executer
@@ -59,7 +63,7 @@ func TestDisputeMalloryCarol(t *testing.T) {
 	}
 
 	// Compensate for the fees of the extrinsics.
-	epsilon := new(big.Int).SetUint64(test.DefaultExtFee * 6)
+	epsilon := new(big.Int).SetUint64(test.DefaultExtFee * MaxNumExtSent)
 	// Amount that will be send from Alice to Bob.
 	aliceToBob := big.NewInt(int64(execConfig.NumPayments[A])*execConfig.TxAmounts[A].Int64() - int64(execConfig.NumPayments[B])*execConfig.TxAmounts[B].Int64())
 	// Amount that will be send from Bob to Alice.
