@@ -32,12 +32,12 @@ func TestTimeout(t *testing.T) {
 
 	waitTime := 5 * s.BlockTime
 	deadline := time.Now().Add(waitTime)
-	timeout := substrate.NewTimeout(s.Api, deadline)
+	timeout := substrate.NewTimeout(s.API, deadline)
 
 	var err error
 	assert.False(t, timeout.IsElapsed(context.Background()))
 	ctxtest.AssertNotTerminates(t, waitTime/2, func() {
-		timeout.Wait(context.Background()) //nolint: errcheck
+		_ = timeout.Wait(context.Background())
 	})
 	assert.False(t, timeout.IsElapsed(context.Background()))
 	ctxtest.AssertTerminates(t, waitTime, func() { err = timeout.Wait(context.Background()) })

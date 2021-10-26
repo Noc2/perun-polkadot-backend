@@ -30,7 +30,7 @@ import (
 
 func TestAdjudicator_Register(t *testing.T) {
 	s := test.NewSetup(t)
-	adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.Api, 50)
+	adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.API, 50)
 	req, _, state := newAdjReq(s, false)
 
 	// Channel is not yet registered
@@ -55,11 +55,11 @@ func TestAdjudicator_ConcludeFinal(t *testing.T) {
 	// Withdraw
 	{
 		// Alice
-		adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.Api, test.PastBlocks)
+		adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.API, test.PastBlocks)
 		assert.NoError(t, adj.Withdraw(s.NewCtx(), req, nil))
 		req.Idx = 1
 		req.Acc = s.Bob.Acc
-		adj = pallet.NewAdjudicator(s.Bob.Acc, s.Pallet, s.Api, test.PastBlocks)
+		adj = pallet.NewAdjudicator(s.Bob.Acc, s.Pallet, s.API, test.PastBlocks)
 		assert.NoError(t, adj.Withdraw(s.NewCtx(), req, nil))
 	}
 }
@@ -68,8 +68,8 @@ func TestAdjudicator_Walkthrough(t *testing.T) {
 	s := test.NewSetup(t)
 	req, params, state := newAdjReq(s, false)
 	fSetup := chtest.NewFundingSetup(params, state)
-	adjAlice := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.Api, test.PastBlocks)
-	adjBob := pallet.NewAdjudicator(s.Bob.Acc, s.Pallet, s.Api, test.PastBlocks)
+	adjAlice := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.API, test.PastBlocks)
+	adjBob := pallet.NewAdjudicator(s.Bob.Acc, s.Pallet, s.API, test.PastBlocks)
 	ctx, cancel := context.WithTimeout(context.Background(), 100*s.BlockTime)
 	defer cancel()
 

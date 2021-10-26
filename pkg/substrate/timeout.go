@@ -41,7 +41,7 @@ type (
 
 // TimeoutPollInterval defines how often the current time should be polled.
 // This could be optimized by only polling close to the expected timeout.
-const TimeoutPollInterval = time.Second
+var TimeoutPollInterval = time.Second
 
 // NewExpiredTimeout returns a new ExpiredTimeout.
 func NewExpiredTimeout() *ExpiredTimeout {

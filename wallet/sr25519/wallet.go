@@ -79,7 +79,7 @@ func (w *Wallet) Unlock(pAddr pwallet.Address) (pwallet.Account, error) {
 
 // SignTx signs an Extrinsic for an address that is present in the wallet;
 // otherwise returns ErrAccountNotPresent.
-func (w *Wallet) signExt(addr *Address, tx *types.Extrinsic, opts types.SignatureOptions, netId substrate.NetworkId) error {
+func (w *Wallet) signExt(addr *Address, tx *types.Extrinsic, opts types.SignatureOptions, net substrate.NetworkID) error {
 	w.mtx.RLock()
 	defer w.mtx.RUnlock()
 
@@ -88,7 +88,7 @@ func (w *Wallet) signExt(addr *Address, tx *types.Extrinsic, opts types.Signatur
 		return ErrAccountNotPresent
 	}
 	// Temporarily re-derive a KeyringPair for signing. GSRPC requires it.
-	gsrpcKp, err := kp.keyRing(netId)
+	gsrpcKp, err := kp.keyRing(net)
 	if err != nil {
 		return errors.WithMessage(err, "deriving keypair")
 	}

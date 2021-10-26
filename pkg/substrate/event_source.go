@@ -29,7 +29,7 @@ type (
 		log.Embedding
 
 		future *state.StorageSubscription
-		api    *Api
+		api    *API
 
 		events chan types.EventRecordsRaw
 		err    chan error
@@ -52,8 +52,8 @@ func SystemEventsKey() *EventKey {
 }
 
 // SystemAccountKey is the key to query an account.
-func SystemAccountKey(accountId types.AccountID) *EventKey {
-	return &EventKey{"System", "Account", [][]byte{accountId[:]}}
+func SystemAccountKey(accountID types.AccountID) *EventKey {
+	return &EventKey{"System", "Account", [][]byte{accountID[:]}}
 }
 
 // Key returns the EventKey as GSRPC key.
@@ -62,9 +62,9 @@ func (k *EventKey) Key(meta *types.Metadata) (types.StorageKey, error) {
 }
 
 // NewEventSource returns a new EventSource.
-// It queries pastBlocks into the past to retrive old events and starts listening
+// It queries pastBlocks into the past to retrieve old events and starts listening
 // for new events with the passed EventKeys.
-func NewEventSource(api *Api, pastBlocks types.BlockNumber, keys ...*EventKey) (*EventSource, error) {
+func NewEventSource(api *API, pastBlocks types.BlockNumber, keys ...*EventKey) (*EventSource, error) {
 	eks, err := mergeEventKeys(api.Metadata(), keys...)
 	if err != nil {
 		return nil, err
@@ -84,14 +84,14 @@ func NewEventSource(api *Api, pastBlocks types.BlockNumber, keys ...*EventKey) (
 		events:    events,
 		err:       make(chan error, 1),
 	}
-	source.OnCloseAlways(func() {
+	source.OnClose(func() {
 		future.Unsubscribe()
 	})
-	return source, source.init(eks, api.Metadata(), pastBlocks)
+	return source, source.init(eks, pastBlocks)
 }
 
 // init reads all past events and starts to forward future events.
-func (s *EventSource) init(keys []types.StorageKey, meta *types.Metadata, pastBlocks types.BlockNumber) error {
+func (s *EventSource) init(keys []types.StorageKey, pastBlocks types.BlockNumber) error {
 	startBlock, err := s.api.PastBlock(pastBlocks)
 	if err != nil {
 		return err
@@ -105,7 +105,7 @@ func (s *EventSource) init(keys []types.StorageKey, meta *types.Metadata, pastBl
 	// Process all past events.
 	// This could dead-lock if there are more events than the channel can hold.
 	for _, set := range past {
-		s.parseEvent(set, meta)
+		s.parseEvent(set)
 	}
 	// Listen to all future events.
 	go func() {
@@ -116,7 +116,7 @@ func (s *EventSource) init(keys []types.StorageKey, meta *types.Metadata, pastBl
 		for {
 			select {
 			case set := <-s.future.Chan():
-				s.parseEvent(set, meta)
+				s.parseEvent(set)
 			case err := <-s.future.Err():
 				s.err <- err
 				return
@@ -130,7 +130,7 @@ func (s *EventSource) init(keys []types.StorageKey, meta *types.Metadata, pastBl
 
 // parseEvent parses an Event from the passed change set and puts it into the
 // events channel.
-func (s *EventSource) parseEvent(set types.StorageChangeSet, meta *types.Metadata) {
+func (s *EventSource) parseEvent(set types.StorageChangeSet) {
 	for _, change := range set.Changes {
 		if !change.HasStorageData {
 			continue
@@ -152,14 +152,14 @@ func (s *EventSource) Err() <-chan error {
 }
 
 func mergeEventKeys(meta *types.Metadata, eks ...*EventKey) ([]types.StorageKey, error) {
-	var keys []types.StorageKey
+	keys := make([]types.StorageKey, len(eks))
 
-	for _, _key := range eks {
+	for i, _key := range eks {
 		key, err := _key.Key(meta)
 		if err != nil {
 			return nil, err
 		}
-		keys = append(keys, key)
+		keys[i] = key
 	}
 
 	return keys, nil

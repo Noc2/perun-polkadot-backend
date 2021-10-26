@@ -16,19 +16,18 @@ package substrate
 
 import (
 	"github.com/centrifuge/go-substrate-rpc-client/v3/rpc/state"
-	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 	gsrpc "github.com/centrifuge/go-substrate-rpc-client/v3/types"
 	"github.com/vedhavyas/go-subkey"
 )
 
 type (
-	// NetworkId ID of the substrate chain.
-	NetworkId uint8
+	// NetworkID ID of the substrate chain.
+	NetworkID uint8
 
 	// ExtSigner signs an Extrinsic by modifying it.
 	ExtSigner interface {
 		// SignExt signs the extrinsic with the specified options and network.
-		SignExt(*gsrpc.Extrinsic, gsrpc.SignatureOptions, NetworkId) error
+		SignExt(*gsrpc.Extrinsic, gsrpc.SignatureOptions, NetworkID) error
 	}
 
 	// StorageQueryer can be used to query the on-chain state.
@@ -59,14 +58,14 @@ type (
 var SignaturePrefix = []byte("substrate")
 
 // SS58Address returns the SS58 of an Address for a specific network.
-func SS58Address(addr gsrpc.AccountID, network NetworkId) (string, error) {
+func SS58Address(addr gsrpc.AccountID, network NetworkID) (string, error) {
 	return subkey.SS58Address(addr[:], uint8(network))
 }
 
 // Meta returns the expected metadata and a success bool.
 // Can be used to check whether the connected substrate node
 // is running the right version.
-func Meta(meta *types.Metadata) (*types.MetadataV13, bool) {
+func Meta(meta *gsrpc.Metadata) (*gsrpc.MetadataV13, bool) {
 	if !meta.IsMetadataV13 {
 		return nil, false
 	}

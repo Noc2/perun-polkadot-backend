@@ -33,7 +33,7 @@ type backend struct{}
 var Backend backend
 
 // CalcID calculates the channelID.
-func (*backend) CalcID(params *pchannel.Params) (ID pchannel.ID) {
+func (*backend) CalcID(params *pchannel.Params) (id pchannel.ID) {
 	return CalcID(params)
 }
 
@@ -63,13 +63,13 @@ func (*backend) Verify(addr pwallet.Address, state *pchannel.State, sig pwallet.
 	return pwallet.VerifySignature(data, sig, addr)
 }
 
-// DecodeAsset returns the unique asset of the backend. Cannot error
+// DecodeAsset returns the unique asset of the backend. Cannot error.
 func (*backend) DecodeAsset(r io.Reader) (pchannel.Asset, error) {
 	return Asset, nil
 }
 
 // CalcID calculates the channelID by encoding and hashing the params.
-func CalcID(params *pchannel.Params) (ID pchannel.ID) {
+func CalcID(params *pchannel.Params) (id pchannel.ID) {
 	_params, err := NewParams(params)
 	if err != nil {
 		panic(fmt.Sprintf("cannot calculate channel ID: %v", err))

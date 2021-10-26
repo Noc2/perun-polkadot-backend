@@ -41,11 +41,11 @@ type (
 	Nonce = [NonceLen]byte
 	// ChannelID the ID of a channel as defined by go-perun.
 	ChannelID = pchannel.ID
-	// FundingId used to a the funding of a participant in a channel.
-	FundingId = [FIDLen]byte
-	// Off-chain identity.
+	// FundingID used to a the funding of a participant in a channel.
+	FundingID = [FIDLen]byte
+	// OffIdentity is an off-chain identity.
 	OffIdentity = [OffIdentityLen]byte
-	// On-chain identity.
+	// OnIdentity is an on-chain identity.
 	OnIdentity = [OnIdentityLen]byte
 	// Version of a state as defined by go-perun.
 	Version = uint64
@@ -115,7 +115,7 @@ var (
 	// MaxBalance is the highest possible value of a Balance.
 	// Substrate uses U128 for balance representation as opposed to go-perun
 	// which uses big.Int so this restriction is necessary.
-	MaxBalance = Balance(types.NewU128(*new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), 128), big.NewInt(1))))
+	MaxBalance Balance = types.NewU128(*new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), 128), big.NewInt(1)))
 
 	// ErrNonceOutOfRange a nonce was out of range of valid values.
 	ErrNonceOutOfRange = errors.New("nonce values was out of range")
@@ -128,16 +128,16 @@ var (
 )
 
 // NewFunding returns a new Funding.
-func NewFunding(ID ChannelID, part OffIdentity) *Funding {
-	return &Funding{ID, part}
+func NewFunding(id ChannelID, part OffIdentity) *Funding {
+	return &Funding{id, part}
 }
 
 // ID calculates the funding ID by encoding and hashing the Funding.
-func (p Funding) ID() (FundingId, error) {
-	var fid FundingId
+func (p Funding) ID() (FundingID, error) {
+	var fid FundingID
 	data, err := ScaleEncode(&p)
 	if err != nil {
 		return fid, errors.WithMessage(err, "calculating funding ID")
 	}
-	return FundingId(crypto.Keccak256Hash(data)), nil
+	return FundingID(crypto.Keccak256Hash(data)), nil
 }

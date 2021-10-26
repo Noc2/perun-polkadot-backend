@@ -19,12 +19,12 @@ import "github.com/centrifuge/go-substrate-rpc-client/v3/types"
 // Pallet binds to a pallet that is deployed on a substrate chain.
 type Pallet struct {
 	name string
-	api  *Api
+	api  *API
 	ext  *ExtFactory
 }
 
 // NewPallet returns a new pallet.
-func NewPallet(api *Api, name string) *Pallet {
+func NewPallet(api *API, name string) *Pallet {
 	return &Pallet{name, api, NewExtFactory(api)}
 }
 

@@ -15,6 +15,8 @@
 package pallet
 
 import (
+	"errors"
+
 	"github.com/centrifuge/go-substrate-rpc-client/v3/types"
 	pchannel "perun.network/go-perun/channel"
 	"perun.network/go-perun/log"
@@ -55,7 +57,7 @@ func NewPallet(pallet *substrate.Pallet, meta *types.Metadata) *Pallet {
 }
 
 // NewPerunPallet is a wrapper around NewPallet and returns a new Perun pallet.
-func NewPerunPallet(api *substrate.Api) *substrate.Pallet {
+func NewPerunPallet(api *substrate.API) *substrate.Pallet {
 	return substrate.NewPallet(api, PerunPallet)
 }
 
@@ -71,7 +73,7 @@ func (p *Pallet) Subscribe(f EventPredicate, pastBlocks types.BlockNumber) (*Eve
 
 // QueryDeposit returns the deposit for a funding ID or
 // nil if no deposit was found.
-func (p *Pallet) QueryDeposit(fid channel.FundingId, storage substrate.StorageQueryer, pastBlocks types.BlockNumber) (*channel.Balance, error) {
+func (p *Pallet) QueryDeposit(fid channel.FundingID, storage substrate.StorageQueryer, pastBlocks types.BlockNumber) (*channel.Balance, error) {
 	// Create the query.
 	key, err := p.BuildQuery("Deposits", fid[:])
 	if err != nil {
@@ -84,7 +86,7 @@ func (p *Pallet) QueryDeposit(fid channel.FundingId, storage substrate.StorageQu
 		return nil, err
 	}
 	if len(res.StorageData) == 0 {
-		return nil, nil
+		return nil, errors.New("no result from query")
 	}
 	// Decode the result as a Balance.
 	ret := new(channel.Balance)
@@ -103,7 +105,7 @@ func (p *Pallet) QueryStateRegister(cid channel.ChannelID, storage substrate.Sto
 	// Retrieve the last value, beginning at pastBlocks.
 	res, err := storage.QueryOne(pastBlocks, key)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("no result from query")
 	}
 	if len(res.StorageData) == 0 {
 		return nil, nil
@@ -114,7 +116,7 @@ func (p *Pallet) QueryStateRegister(cid channel.ChannelID, storage substrate.Sto
 }
 
 // BuildDeposit returns an extrinsic that funds the specified funding ID.
-func (p *Pallet) BuildDeposit(acc pwallet.Account, _amount pchannel.Bal, fid channel.FundingId) (*types.Extrinsic, error) {
+func (p *Pallet) BuildDeposit(acc pwallet.Account, _amount pchannel.Bal, fid channel.FundingID) (*types.Extrinsic, error) {
 	amount, err := channel.MakeBalance(_amount)
 	if err != nil {
 		return nil, err
@@ -122,7 +124,7 @@ func (p *Pallet) BuildDeposit(acc pwallet.Account, _amount pchannel.Bal, fid cha
 	return p.BuildExt(Deposit, []interface{}{
 		fid,
 		amount},
-		wallet.AsAddr(acc.Address()).AccountId(),
+		wallet.AsAddr(acc.Address()).AccountID(),
 		wallet.AsAcc(acc))
 }
 
@@ -146,7 +148,7 @@ func (p *Pallet) BuildDispute(acc pwallet.Account, params *pchannel.Params, stat
 			_params,
 			_state,
 			_sigs},
-		wallet.AsAddr(acc.Address()).AccountId(),
+		wallet.AsAddr(acc.Address()).AccountID(),
 		wallet.AsAcc(acc))
 }
 
@@ -170,7 +172,7 @@ func (p *Pallet) BuildConclude(acc pwallet.Account, params *pchannel.Params, sta
 			_params,
 			_state,
 			_sigs},
-		wallet.AsAddr(acc.Address()).AccountId(),
+		wallet.AsAddr(acc.Address()).AccountID(),
 		wallet.AsAcc(acc))
 }
 
@@ -200,6 +202,6 @@ func (p *Pallet) BuildWithdraw(onChain, offChain pwallet.Account, cid pchannel.I
 		[]interface{}{
 			withdrawal,
 			_sig},
-		wallet.AsAddr(onChain.Address()).AccountId(),
+		wallet.AsAddr(onChain.Address()).AccountID(),
 		wallet.AsAcc(onChain))
 }

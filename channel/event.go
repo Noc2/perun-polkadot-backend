@@ -24,10 +24,10 @@ type (
 	EventRecords struct {
 		types.EventRecords
 
-		PerunModule_Deposited []DepositedEvent
-		PerunModule_Disputed  []DisputedEvent
-		PerunModule_Concluded []ConcludedEvent
-		PerunModule_Withdrawn []WithdrawnEvent
+		PerunModule_Deposited []DepositedEvent // nolint: stylecheck
+		PerunModule_Disputed  []DisputedEvent  // nolint: stylecheck
+		PerunModule_Concluded []ConcludedEvent // nolint: stylecheck
+		PerunModule_Withdrawn []WithdrawnEvent // nolint: stylecheck
 	}
 
 	// PerunEvent is a Perun event.
@@ -36,7 +36,7 @@ type (
 	// DepositedEvent is emitted when a deposit is received.
 	DepositedEvent struct {
 		Phase   types.Phase // required
-		Fid     FundingId
+		Fid     FundingID
 		Balance Balance      // total deposit of the Fid
 		Topics  []types.Hash // required
 	}
@@ -59,7 +59,7 @@ type (
 	// WithdrawnEvent is emitted when all funds are withdrawn from a funding ID.
 	WithdrawnEvent struct {
 		Phase  types.Phase // required
-		Fid    FundingId
+		Fid    FundingID
 		Topics []types.Hash // required
 	}
 )
@@ -94,8 +94,8 @@ func EventIsWithdrawn(e PerunEvent) bool {
 	return ok
 }
 
-// Merge merges all Perun events into one slice and returns it.
-func (r *EventRecords) Merge() []PerunEvent {
+// Events extracts all Perun events into one slice and returns it.
+func (r *EventRecords) Events() []PerunEvent {
 	var ret []PerunEvent
 	// The order here does not matter here since just one slice is non empty.
 	for _, e := range r.PerunModule_Deposited {

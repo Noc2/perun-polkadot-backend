@@ -26,14 +26,14 @@ import (
 	"perun.network/go-perun/log"
 )
 
-// Wraps a gsrpc.SubstrateAPI in a thread-safe way.
-type Api struct {
+// API wraps a gsrpc.SubstrateAPI in a thread-safe way.
+type API struct {
 	log.Embedding
 	mtx *sync.Mutex // protects all
 
 	url     string
 	api     *gsrpc.SubstrateAPI
-	network NetworkId
+	network NetworkID
 	meta    *types.Metadata
 }
 
@@ -41,8 +41,8 @@ type Api struct {
 // detected.
 var ErrWrongNodeVersion = errors.New("wrong node version")
 
-// NewApi creates a new `Api` object. Can be retried in the case of an error.
-func NewApi(url string, network NetworkId, pastBlocks types.BlockNumber) (*Api, error) {
+// NewAPI creates a new `Api` object. Can be retried in the case of an error.
+func NewAPI(url string, network NetworkID) (*API, error) {
 	log.WithField("url", url).Debugf("Connecting to node")
 	api, err := gsrpc.NewSubstrateAPI(url)
 	if err != nil {
@@ -55,12 +55,12 @@ func NewApi(url string, network NetworkId, pastBlocks types.BlockNumber) (*Api, 
 	if _, ok := Meta(meta); !ok {
 		return nil, ErrWrongNodeVersion
 	}
-	return &Api{log.MakeEmbedding(log.Get()), new(sync.Mutex), url, api, network, meta}, nil
+	return &API{log.MakeEmbedding(log.Get()), new(sync.Mutex), url, api, network, meta}, nil
 }
 
 // AccountInfo returns the account info for an Address.
 // Can be used to retrieve the free balance, nonce, and other.
-func (a *Api) AccountInfo(addr types.AccountID) (AccountInfo, error) {
+func (a *API) AccountInfo(addr types.AccountID) (AccountInfo, error) {
 	key, err := types.CreateStorageKey(a.Metadata(), "System", "Account", addr[:])
 	if err != nil {
 		return AccountInfo{}, err
@@ -77,7 +77,7 @@ func (a *Api) AccountInfo(addr types.AccountID) (AccountInfo, error) {
 }
 
 // Metadata returns the metadata of the chain. The value is cached on startup.
-func (a *Api) Metadata() *types.Metadata {
+func (a *API) Metadata() *types.Metadata {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 
@@ -86,12 +86,12 @@ func (a *Api) Metadata() *types.Metadata {
 
 // Network returns the ID of the network that the api is connected to.
 // The value is cached on startup.
-func (a *Api) Network() NetworkId {
+func (a *API) Network() NetworkID {
 	return a.network
 }
 
 // BlockHash returns the hash for the given block number.
-func (a *Api) BlockHash(n uint64) (types.Hash, error) {
+func (a *API) BlockHash(n uint64) (types.Hash, error) {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 
@@ -101,7 +101,7 @@ func (a *Api) BlockHash(n uint64) (types.Hash, error) {
 // PastBlock queries `pastBlocks` into the past and returns the hash of the
 // block. If `pastBlocks` is larger than the current block number, the
 // genesis block is used.
-func (a *Api) PastBlock(pastBlocks types.BlockNumber) (types.Hash, error) {
+func (a *API) PastBlock(pastBlocks types.BlockNumber) (types.Hash, error) {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 
@@ -118,7 +118,7 @@ func (a *Api) PastBlock(pastBlocks types.BlockNumber) (types.Hash, error) {
 }
 
 // RuntimeVersion queries and returns the last runtime version.
-func (a *Api) RuntimeVersion() (*types.RuntimeVersion, error) {
+func (a *API) RuntimeVersion() (*types.RuntimeVersion, error) {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 
@@ -126,7 +126,7 @@ func (a *Api) RuntimeVersion() (*types.RuntimeVersion, error) {
 }
 
 // Subscribe subscribes to multiple storage keys.
-func (a *Api) Subscribe(keys ...types.StorageKey) (*state.StorageSubscription, error) {
+func (a *API) Subscribe(keys ...types.StorageKey) (*state.StorageSubscription, error) {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 
@@ -134,12 +134,12 @@ func (a *Api) Subscribe(keys ...types.StorageKey) (*state.StorageSubscription, e
 }
 
 // BuildKey builds a storage key.
-func (a *Api) BuildKey(pallet, variable string, args ...[]byte) (types.StorageKey, error) {
+func (a *API) BuildKey(pallet, variable string, args ...[]byte) (types.StorageKey, error) {
 	return types.CreateStorageKey(a.Metadata(), pallet, variable, args...)
 }
 
 // QueryAll returns all entries for `keys` from `startBlock` to the last block.
-func (a *Api) QueryAll(keys []types.StorageKey, startBlock types.Hash) ([]types.StorageChangeSet, error) {
+func (a *API) QueryAll(keys []types.StorageKey, startBlock types.Hash) ([]types.StorageChangeSet, error) {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 
@@ -147,8 +147,10 @@ func (a *Api) QueryAll(keys []types.StorageKey, startBlock types.Hash) ([]types.
 }
 
 // QueryOne queries the storage and expects to read at least one value.
-// Returns the latest value that it read or an error if none was found.
-func (a *Api) QueryOne(pastBlocks types.BlockNumber, keys ...types.StorageKey) (*types.KeyValueOption, error) {
+// PastBlocks defines how many blocks into the past the query should look.
+// Returns the latest value that it read or an error if none was found within
+// the last `pastBlocks` blocks.
+func (a *API) QueryOne(pastBlocks types.BlockNumber, keys ...types.StorageKey) (*types.KeyValueOption, error) {
 	firstBlock, err := a.PastBlock(pastBlocks)
 	if err != nil {
 		return nil, err
@@ -168,7 +170,7 @@ func (a *Api) QueryOne(pastBlocks types.BlockNumber, keys ...types.StorageKey) (
 }
 
 // LastHeader returns the last header.
-func (a *Api) LastHeader() (*types.Header, error) {
+func (a *API) LastHeader() (*types.Header, error) {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 
@@ -176,7 +178,7 @@ func (a *Api) LastHeader() (*types.Header, error) {
 }
 
 // SubscribeHeaders subscribes to new headers.
-func (a *Api) SubscribeHeaders() (*chain.NewHeadsSubscription, error) {
+func (a *API) SubscribeHeaders() (*chain.NewHeadsSubscription, error) {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 
@@ -184,7 +186,7 @@ func (a *Api) SubscribeHeaders() (*chain.NewHeadsSubscription, error) {
 }
 
 // Transact sends an Extrinsic and returns a Sub for its updates.
-func (a *Api) Transact(ext *types.Extrinsic) (*ExtStatusSub, error) {
+func (a *API) Transact(ext *types.Extrinsic) (*ExtStatusSub, error) {
 	a.mtx.Lock()
 	defer a.mtx.Unlock()
 

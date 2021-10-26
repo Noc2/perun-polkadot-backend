@@ -37,7 +37,7 @@ type (
 	DepositReq struct {
 		Balance   pchannel.Bal
 		Account   pwallet.Account
-		FundingId channel.FundingId
+		FundingID channel.FundingID
 	}
 )
 
@@ -45,7 +45,7 @@ type (
 var ErrFundingReqIncompatible = errors.New("incompatible funding request")
 
 // NewDepositReq returns a new DepositReq.
-func NewDepositReq(bal pchannel.Bal, acc pwallet.Account, fid channel.FundingId) *DepositReq {
+func NewDepositReq(bal pchannel.Bal, acc pwallet.Account, fid channel.FundingID) *DepositReq {
 	return &DepositReq{bal, acc, fid}
 }
 
@@ -72,11 +72,11 @@ func NewDepositor(pallet *Pallet) *Depositor {
 // Deposit deposits funds into a channel as specified by the request.
 // Returns as soon as the transaction was finalized; this does not guarantee success.
 func (d *Depositor) Deposit(ctx context.Context, req *DepositReq) error {
-	ext, err := d.pallet.BuildDeposit(req.Account, req.Balance, req.FundingId)
+	ext, err := d.pallet.BuildDeposit(req.Account, req.Balance, req.FundingID)
 	if err != nil {
 		return err
 	}
-	d.Log().WithField("fid", req.FundingId).Debugf("Depositing %v", req.Balance)
+	d.Log().WithField("fid", req.FundingID).Debugf("Depositing %v", req.Balance)
 	tx, err := d.pallet.Transact(ext)
 	if err != nil {
 		return err

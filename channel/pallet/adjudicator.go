@@ -40,7 +40,7 @@ type Adjudicator struct {
 var (
 	// ErrConcludedDifferentVersion a channel was concluded with a different version.
 	ErrConcludedDifferentVersion = errors.New("channel was concluded with a different version")
-	//ErrAdjudicatorReqIncompatible the adjudicator request was not compatible
+	// ErrAdjudicatorReqIncompatible the adjudicator request was not compatible.
 	ErrAdjudicatorReqIncompatible = errors.New("adjudicator request was not compatible")
 )
 
@@ -195,7 +195,7 @@ func (a *Adjudicator) ensureConcluded(ctx context.Context, req pchannel.Adjudica
 }
 
 // waitForConcluded waits for a concluded event of the specified channel.
-func (a *Adjudicator) waitForConcluded(ctx context.Context, sub *EventSub, ID channel.ChannelID) error {
+func (a *Adjudicator) waitForConcluded(ctx context.Context, sub *EventSub, id channel.ChannelID) error {
 	a.Log().Tracef("Waiting for conclude event")
 
 loop:
@@ -207,8 +207,10 @@ loop:
 				continue loop
 			}
 
-			a.Log().WithField("cid", ID).Debugf("Accepted Concluded event")
+			a.Log().WithField("cid", id).Debugf("Accepted Concluded event")
 			return nil
+		case <-ctx.Done():
+			return ctx.Err()
 		case err := <-sub.Err():
 			return err
 		}

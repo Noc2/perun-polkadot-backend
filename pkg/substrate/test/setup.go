@@ -29,7 +29,7 @@ type (
 		// ChainUrl is the url of the chain's RPC endpoint.
 		ChainUrl string `json:"chain_url"`
 		// Network is the network ID.
-		NetworkID substrate.NetworkId `json:"network_id"`
+		NetworkID substrate.NetworkID `json:"network_id"`
 		// BlockTime is the block time of the node in milli seconds.
 		BlockTimeMs uint32 `json:"block_time_ms"`
 		BlockTime   time.Duration
@@ -38,7 +38,7 @@ type (
 	Setup struct {
 		ChainCfg
 
-		Api *substrate.Api
+		API *substrate.API
 	}
 )
 
@@ -51,7 +51,7 @@ var chainCfgFile []byte
 
 func NewSetup(t *testing.T) *Setup {
 	cfg := LoadChainCfg(t)
-	api, err := substrate.NewApi(cfg.ChainUrl, cfg.NetworkID, PastBlocks)
+	api, err := substrate.NewAPI(cfg.ChainUrl, cfg.NetworkID)
 	require.NoError(t, err)
 
 	return &Setup{cfg, api}

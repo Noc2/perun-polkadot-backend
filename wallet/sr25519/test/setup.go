@@ -42,7 +42,7 @@ type (
 	// SS58Addr contains an address and a network id.
 	SS58Addr struct {
 		Value   string
-		Network substrate.NetworkId
+		Network substrate.NetworkID
 	}
 	// Hex allows hexadecimal strings to be decoded by the go JSON lib.
 	Hex []byte

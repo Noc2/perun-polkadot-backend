@@ -33,7 +33,7 @@ type (
 	Address interface {
 		pwallet.Address
 
-		AccountId() types.AccountID
+		AccountID() types.AccountID
 	}
 )
 

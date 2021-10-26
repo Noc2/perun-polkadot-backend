@@ -29,7 +29,7 @@ import (
 )
 
 func TestPalletEventSub_Deposit(t *testing.T) {
-	n := 3
+	numEvents := 3 // Number of events that the EventSub will be tested with.
 	s := test.NewSetup(t)
 	params, state := s.NewRandomParamAndState()
 	fSetup := chtest.NewFundingSetup(params, state)
@@ -45,14 +45,14 @@ func TestPalletEventSub_Deposit(t *testing.T) {
 	}, 0)
 	require.NoError(t, err)
 
-	// Fund `n` times.
-	for i := 0; i < n; i++ {
+	// Fund `numEvents` times.
+	for i := 0; i < numEvents; i++ {
 		require.NoError(t, s.Deps[0].Deposit(s.NewCtx(), dSetup.DReqs[0]))
 	}
 
 	aliceBal := state.Balances[0][0]
-	// Wait for `n` events and check that the values match.
-	events := AssertNEvents(t, 2*s.BlockTime, sub, n)
+	// Wait for `numEvents` events and check that the values match.
+	events := AssertNEvents(t, 2*s.BlockTime, sub, numEvents)
 	for i, _event := range events {
 		event := _event.(*channel.DepositedEvent)
 
@@ -80,10 +80,10 @@ func AssertNEvents(t *testing.T, timeout time.Duration, sub *pallet.EventSub, n 
 	select {
 	case <-time.After(timeout):
 	case event := <-sub.Events():
-		t.Errorf("Got event but expected none but got: %#v", event)
+		t.Errorf("Expected no event, got: %#v", event)
 		t.FailNow()
-	case <-sub.Err():
-		t.Error("Got error but expected none")
+	case err := <-sub.Err():
+		t.Errorf("Expected no error, got: %v", err)
 		t.FailNow()
 	}
 

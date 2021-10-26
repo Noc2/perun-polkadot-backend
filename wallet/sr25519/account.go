@@ -41,8 +41,8 @@ func (acc *Account) Address() pwallet.Address {
 }
 
 // SignExt signs an extrinsic by modifying it. This behaviour is required by GSRPC.
-func (acc *Account) SignExt(ext *types.Extrinsic, opts types.SignatureOptions, netId substrate.NetworkId) error {
-	return acc.wallet.signExt(acc.addr, ext, opts, netId)
+func (acc *Account) SignExt(ext *types.Extrinsic, opts types.SignatureOptions, net substrate.NetworkID) error {
+	return acc.wallet.signExt(acc.addr, ext, opts, net)
 }
 
 // SignData signs a byte-slice. Needed by the Account interface.

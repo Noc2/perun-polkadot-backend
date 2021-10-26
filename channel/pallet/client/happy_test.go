@@ -60,16 +60,16 @@ func TestHappyAliceBob(t *testing.T) {
 	epsilon := new(big.Int).SetUint64(test.DefaultExtFee * 3)
 	aliceToBob := big.NewInt(int64(execConfig.NumPayments[A])*execConfig.TxAmounts[A].Int64() - int64(execConfig.NumPayments[B])*execConfig.TxAmounts[B].Int64())
 
+	test := func() {
+		err := clienttest.ExecuteTwoPartyTest(ctx, role, execConfig)
+		assert.NoError(t, err)
+	}
 	// aliceToBob is transferred from alice to bob.
-	s.AssertBalanceChange(wallet.AsAddr(s.Alice.Acc.Address()).AccountId(), aliceToBob, epsilon,
+	s.AssertBalanceChange(wallet.AsAddr(s.Alice.Acc.Address()).AccountID(), aliceToBob, epsilon,
 		func() {
 			bobToAlice := new(big.Int).Neg(aliceToBob)
 			// bobToAlice is transferred from bob to alice.
-			s.AssertBalanceChange(wallet.AsAddr(s.Bob.Acc.Address()).AccountId(), bobToAlice, epsilon,
-				func() {
-					err := clienttest.ExecuteTwoPartyTest(ctx, role, execConfig)
-					assert.NoError(t, err)
-				})
+			s.AssertBalanceChange(wallet.AsAddr(s.Bob.Acc.Address()).AccountID(), bobToAlice, epsilon, test)
 		})
 	log.Info("HABT test done")
 }

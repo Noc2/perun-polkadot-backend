@@ -101,22 +101,22 @@ func (f *Funder) waitForFundings(ctx context.Context, sub *EventSub, req pchanne
 }
 
 // makeTimeoutErr returns a FundingTimeoutError.
-func makeTimeoutErr(remains map[channel.FundingId]pchannel.Index) error {
-	var indices []pchannel.Index
+func makeTimeoutErr(remains map[channel.FundingID]pchannel.Index) error {
+	indices := make([]pchannel.Index, 0, len(remains))
 	for _, idx := range remains {
 		indices = append(indices, idx)
 	}
 	return pchannel.NewFundingTimeoutError(
 		[]*pchannel.AssetFundingError{{
-			Asset:         0,
+			Asset:         channel.Asset.Index(),
 			TimedOutPeers: indices,
 		}},
 	)
 }
 
 // calcFids calculates all funding ids of the funding request.
-func calcFids(req pchannel.FundingReq) (map[channel.FundingId]pchannel.Index, error) {
-	ids := make(map[channel.FundingId]pchannel.Index)
+func calcFids(req pchannel.FundingReq) (map[channel.FundingID]pchannel.Index, error) {
+	ids := make(map[channel.FundingID]pchannel.Index)
 
 	for i, part := range req.Params.Parts {
 		_part, err := channel.MakeOffIdent(part)

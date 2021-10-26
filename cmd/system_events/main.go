@@ -27,13 +27,13 @@ import (
 
 func main() {
 	plogrus.Set(logrus.InfoLevel, &logrus.TextFormatter{ForceColors: true})
-	api, err := substrate.NewApi(config.Default().RPCURL, 42, 100)
+	api, err := substrate.NewAPI(config.Default().RPCURL, 42)
 	noErr(err)
 
 	logSystemEvents(api, log.Get())
 }
 
-func logSystemEvents(api *substrate.Api, log logrus.StdLogger) {
+func logSystemEvents(api *substrate.API, log logrus.StdLogger) {
 	meta := api.Metadata()
 	// Subscribe to system events via storage
 	key, err := types.CreateStorageKey(meta, "System", "Events", nil, nil)

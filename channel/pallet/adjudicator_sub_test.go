@@ -34,7 +34,7 @@ import (
 
 func TestAdjudicatorSub_Register(t *testing.T) {
 	s := test.NewSetup(t)
-	adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.Api, test.PastBlocks)
+	adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.API, test.PastBlocks)
 	req, params, _ := newAdjReq(s, false)
 
 	sub, err := adj.Subscribe(s.NewCtx(), params.ID())
@@ -59,7 +59,7 @@ func TestAdjudicatorSub_Register(t *testing.T) {
 
 func TestAdjudicatorSub_ConcludeFinal(t *testing.T) {
 	s := test.NewSetup(t)
-	adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.Api, test.PastBlocks)
+	adj := pallet.NewAdjudicator(s.Alice.Acc, s.Pallet, s.API, test.PastBlocks)
 	req, params, state := newAdjReq(s, true)
 	fSetup := chtest.NewFundingSetup(params, state)
 	dSetup := chtest.NewDepositSetup(fSetup, s.Alice.Acc, s.Bob.Acc)

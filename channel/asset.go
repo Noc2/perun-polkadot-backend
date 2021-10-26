@@ -14,7 +14,11 @@
 
 package channel
 
-import "io"
+import (
+	"io"
+
+	pchannel "perun.network/go-perun/channel"
+)
 
 // asset is the Asset of the connected substrate chain.
 // Implements the Perun Asset interface.
@@ -23,6 +27,10 @@ type asset struct{}
 
 // Asset is the unique asset that is supported by the chain.
 var Asset asset
+
+func (asset) Index() pchannel.Index {
+	return 0
+}
 
 // Encode does nothing and returns nil since the backend has only one asset.
 func (asset) Encode(io.Writer) error {

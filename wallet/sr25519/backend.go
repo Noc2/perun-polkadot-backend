@@ -49,7 +49,8 @@ func (*Backend) DecodeAddress(r io.Reader) (pwallet.Address, error) {
 
 // encodeSig encodes a signature into byte slice.
 func encodeSig(s *schnorrkel.Signature) []byte {
-	bytes := signature(s.Encode()) // assert the length
+	// Convert to ensure that the length of schnorrkel sigs did not change.
+	bytes := signature(s.Encode()) // nolint: unconvert
 	return bytes[:]
 }
 
@@ -61,7 +62,7 @@ func (*Backend) DecodeSig(r io.Reader) (pwallet.Sig, error) {
 		return nil, err
 	}
 	// Decode the sig with schnorrkel for error checking.
-	return sig[:], new(schnorrkel.Signature).Decode(_sig)
+	return sig, new(schnorrkel.Signature).Decode(_sig)
 }
 
 // VerifySignature verifies that the signature was created by the address

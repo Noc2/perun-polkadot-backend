@@ -38,9 +38,9 @@ func ScaleDecode(obj interface{}, data []byte) error {
 // MakeBalance creates a new Balance.
 func MakeBalance(bal *big.Int) (Balance, error) {
 	if bal.Sign() < 0 || bal.Cmp(MaxBalance.Int) > 0 {
-		return Balance(types.NewU128(*big.NewInt(0))), errors.New("invalid balance")
+		return types.NewU128(*big.NewInt(0)), errors.New("invalid balance")
 	}
-	return Balance(types.NewU128(*bal)), nil
+	return types.NewU128(*bal), nil
 }
 
 // MakePerunBalance creates a Perun balance.
@@ -66,17 +66,16 @@ func MakePerunBalances(bals []Balance) pchannel.Balances {
 		ret[0][i] = new(big.Int).Set(bal.Int)
 	}
 	return ret
-
 }
 
 // MakeChallengeDuration creates a new ChallengeDuration from the argument.
 func MakeChallengeDuration(challengeDuration uint64) ChallengeDuration {
-	return ChallengeDuration(challengeDuration)
+	return challengeDuration
 }
 
 // MakePerunChallengeDuration creates a new Perun ChallengeDuration.
 func MakePerunChallengeDuration(sec ChallengeDuration) uint64 {
-	return uint64(sec)
+	return sec
 }
 
 // MakeDuration creates a new duration from the argument.

@@ -49,7 +49,7 @@ type (
 		*Setup
 
 		FReqs     []*pchannel.FundingReq
-		Fids      []channel.FundingId
+		Fids      []channel.FundingID
 		FinalBals []pchannel.Bal
 	}
 
@@ -114,7 +114,7 @@ func NewFundingSetup(params *pchannel.Params, state *pchannel.State) *FundingSet
 
 	return &FundingSetup{
 		FReqs:     []*pchannel.FundingReq{reqAlice, reqBob},
-		Fids:      []channel.FundingId{fidAlice, fidBob},
+		Fids:      []channel.FundingID{fidAlice, fidBob},
 		FinalBals: []pchannel.Bal{balAlice, balBob},
 	}
 }

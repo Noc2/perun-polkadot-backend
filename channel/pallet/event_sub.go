@@ -44,7 +44,7 @@ type (
 func NewEventSub(source *substrate.EventSource, meta *types.Metadata, p EventPredicate) *EventSub {
 	sub := &EventSub{Closer: new(pkgsync.Closer), Embedding: log.MakeEmbedding(log.Get()), source: source, sink: make(chan channel.PerunEvent, substrate.ChanBuffSize), p: p, errChan: make(chan error, 1)}
 	sub.OnCloseAlways(func() {
-		source.Close()
+		_ = source.Close()
 	})
 
 	go func() {
@@ -78,7 +78,7 @@ func (p *EventSub) decodeEventRecords(rawRecord types.EventRecordsRaw, meta *typ
 	if err := rawRecord.DecodeEventRecords(meta, &record); err != nil {
 		return err
 	}
-	for _, e := range record.Merge() {
+	for _, e := range record.Events() {
 		if p.p(e) {
 			p.sink <- e
 		}

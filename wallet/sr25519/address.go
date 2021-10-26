@@ -39,7 +39,8 @@ func NewAddressFromPK(pk *schnorrkel.PublicKey) *Address {
 
 // Bytes returns the address encoded as byte slice.
 func (a *Address) Bytes() []byte {
-	bytes := [AddressLen]byte(a.pk.Encode())
+	// Convert to ensure that the length of schnorrkel PKs did not change.
+	bytes := [AddressLen]byte(a.pk.Encode()) // nolint: unconvert
 	return bytes[:]
 }
 
@@ -58,15 +59,15 @@ func (a *Address) Decode(r io.Reader) error {
 	return nil
 }
 
-// AccountId returns the substrate account id of an address.
-func (a *Address) AccountId() types.AccountID {
+// AccountID returns the substrate account id of an address.
+func (a *Address) AccountID() types.AccountID {
 	return a.pk.Encode()
 }
 
-// String returns the AccountId as hex string with 0x prefix.
+// String returns the AccountID as hex string with 0x prefix.
 // Needed by the Perun Address interface.
 func (a *Address) String() string {
-	aid := a.AccountId()
+	aid := a.AccountID()
 	return hexutil.Encode(aid[:])
 }
 

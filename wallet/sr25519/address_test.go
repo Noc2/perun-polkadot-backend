@@ -30,9 +30,9 @@ import (
 // fixed values.
 func TestAddress_SS58Addr(t *testing.T) {
 	for _, setup := range test.LoadDevAccounts(t) {
-		// Check AccountId
-		id := wallet.AsAddr(setup.Acc.Address()).AccountId()
-		assert.Equal(t, []byte(setup.Id), []byte(id[:]))
+		// Check AccountID
+		id := wallet.AsAddr(setup.Acc.Address()).AccountID()
+		assert.Equal(t, []byte(setup.Id), id[:])
 
 		// Check SS58 addresses
 		for _, addr := range setup.Addr {

@@ -38,8 +38,8 @@ func makeKeyPair(msk *schnorrkel.MiniSecretKey) keyPair {
 }
 
 // keyRing returns the receiver as gsrpc.KeyringPair.
-func (kp *keyPair) keyRing(netId substrate.NetworkId) (gsrpcsig.KeyringPair, error) {
+func (kp *keyPair) keyRing(net substrate.NetworkID) (gsrpcsig.KeyringPair, error) {
 	msk := kp.msk.Encode()
-	pair, err := gsrpcsig.KeyringPairFromSecret(hexutil.Encode(msk[:]), uint8(netId))
+	pair, err := gsrpcsig.KeyringPairFromSecret(hexutil.Encode(msk[:]), uint8(net))
 	return pair, err
 }

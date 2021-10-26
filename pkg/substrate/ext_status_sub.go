@@ -38,7 +38,7 @@ type (
 // NewExtStatusSub returns a new ExtStatusSub and takes ownership of the passed sub.
 func NewExtStatusSub(sub *author.ExtrinsicStatusSubscription) *ExtStatusSub {
 	ret := &ExtStatusSub{sub: sub}
-	ret.Closer.OnCloseAlways(sub.Unsubscribe)
+	ret.Closer.OnClose(sub.Unsubscribe)
 	return ret
 }
 
@@ -52,7 +52,7 @@ func (e *ExtStatusSub) WaitUntil(ctx context.Context, until ExtStatusPred) error
 				return nil
 			}
 		case err := <-e.sub.Err():
-			return errors.WithMessage(err, "underlying sub closed")
+			return errors.Errorf("underlying sub closed: %v", err)
 		case <-ctx.Done():
 			return ctx.Err()
 		}
@@ -61,7 +61,7 @@ func (e *ExtStatusSub) WaitUntil(ctx context.Context, until ExtStatusPred) error
 
 // Close closes the subscription.
 func (e *ExtStatusSub) Close() {
-	e.Closer.Close()
+	_ = e.Closer.Close()
 }
 
 // ExtIsFinal returns whether an Extrinsic is final.

@@ -23,7 +23,6 @@ import (
 )
 
 // DepositAll executes all requests with the given depositors in parallel.
-// Returns any error that occurred.
 func DepositAll(ctx context.Context, deps []*pallet.Depositor, reqs []*pallet.DepositReq) error {
 	g := pkgerrors.NewGatherer()
 	for i := range deps {

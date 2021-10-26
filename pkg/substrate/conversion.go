@@ -27,8 +27,9 @@ type Dot struct {
 const (
 	// PlankPerDot number of planks per Dot.
 	PlankPerDot = 1e12
-	// Precision with which floats are printed as defined by big.Float.Text.
-	Precision = 3
+	// PrintPrecision is the precision with which floats are printed
+	// as defined by big.Float.Text.
+	PrintPrecision = 3
 )
 
 // NewDotFromPlank creates a new Dot from the given amount of Planks.
@@ -36,7 +37,7 @@ func NewDotFromPlank(plank *big.Int) *Dot {
 	return &Dot{plank}
 }
 
-// NewDotFromPlank creates new Dots from the given amounts of Planks.
+// NewDotsFromPlanks creates new Dots from the given amounts of Planks.
 func NewDotsFromPlanks(plank ...*big.Int) []*Dot {
 	ret := make([]*Dot, len(plank))
 	for i, p := range plank {
@@ -72,7 +73,7 @@ func (d *Dot) String() string {
 	return "0 Plank"
 }
 
-// Planks converts a Dot to Planks.
+// Plank converts a Dot to Planks.
 func (d *Dot) Plank() *big.Int {
 	return new(big.Int).Set(d.plank)
 }
@@ -83,5 +84,5 @@ func (d *Dot) Abs() *Dot {
 }
 
 func formatFloat(f *big.Float) string {
-	return f.Text('f', Precision)
+	return f.Text('f', PrintPrecision)
 }

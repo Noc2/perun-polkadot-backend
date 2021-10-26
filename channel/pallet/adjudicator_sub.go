@@ -47,7 +47,7 @@ func NewAdjudicatorSub(cid channel.ChannelID, p *Pallet, storage substrate.Stora
 	}
 	ret := &AdjudicatorSub{new(pkgsync.Closer), log.MakeEmbedding(log.Get()), cid, sub, p, storage, make(chan error, 1)}
 	ret.OnCloseAlways(func() {
-		ret.sub.Close()
+		_ = ret.sub.Close()
 		close(ret.err)
 	})
 	return ret, nil
@@ -105,7 +105,7 @@ loop:
 	event, err := s.makePerunEvent(rawEvent)
 	if err != nil {
 		s.err <- err
-		s.Close()
+		_ = s.Close()
 		return nil
 	}
 	return event

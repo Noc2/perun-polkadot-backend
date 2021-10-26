@@ -23,7 +23,7 @@ import (
 type (
 	// ExtFactory can be used to build Extrinsics.
 	ExtFactory struct {
-		api *Api
+		api *API
 	}
 
 	// ExtName identifies an Extrinsic by its name.
@@ -33,12 +33,12 @@ type (
 )
 
 // NewExtFactory returns a new ExtFactory.
-func NewExtFactory(sub *Api) *ExtFactory {
+func NewExtFactory(sub *API) *ExtFactory {
 	return &ExtFactory{sub}
 }
 
 // NewExtName creates a new ExtName for the given pallet and function name.
-// Example: NewExtName("PerunModule", "deposit")
+// Example: NewExtName("PerunModule", "deposit").
 func NewExtName(pallet, function string) *ExtName {
 	return &ExtName{pallet, function}
 }

@@ -24,7 +24,6 @@ import (
 )
 
 // FundAll executes all requests with the given funders in parallel.
-// Returns any error that occurred.
 func FundAll(ctx context.Context, funders []*pallet.Funder, reqs []*pchannel.FundingReq) error {
 	g := pkgerrors.NewGatherer()
 	for i := range funders {

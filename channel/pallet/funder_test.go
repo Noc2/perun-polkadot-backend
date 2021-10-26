@@ -21,6 +21,7 @@ import (
 	"github.com/stretchr/testify/require"
 	pchannel "perun.network/go-perun/channel"
 
+	"github.com/perun-network/perun-polkadot-backend/channel"
 	"github.com/perun-network/perun-polkadot-backend/channel/pallet/test"
 	chtest "github.com/perun-network/perun-polkadot-backend/channel/test"
 )
@@ -61,13 +62,14 @@ func TestFunder_Timeout(t *testing.T) {
 
 	// Bob did not fund and times out.
 	wantErr := makeTimeoutErr(1)
-	// Only call Alice' funder.
+	// Only call Alice's funder.
 	gotErr := s.Funders[0].Fund(s.NewCtx(), *fSetup.FReqs[0])
 	// Check that the funder returned the correct error.
 	assert.True(t, pchannel.IsFundingTimeoutError(gotErr))
-	assert.Equal(t, wantErr.Error(), gotErr.Error()) // ErrorIs does not work here.
+	// Use equality on the error strings since Errors.Is does not work.
+	assert.Equal(t, wantErr.Error(), gotErr.Error())
 }
 
 func makeTimeoutErr(idx pchannel.Index) error {
-	return pchannel.NewFundingTimeoutError([]*pchannel.AssetFundingError{{Asset: 0, TimedOutPeers: []pchannel.Index{idx}}})
+	return pchannel.NewFundingTimeoutError([]*pchannel.AssetFundingError{{Asset: channel.Asset.Index(), TimedOutPeers: []pchannel.Index{idx}}})
 }
