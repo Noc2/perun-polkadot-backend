@@ -66,6 +66,11 @@ func (a *Adjudicator) Register(ctx context.Context, req pchannel.AdjudicatorReq,
 func (a *Adjudicator) Progress(ctx context.Context, req pchannel.ProgressReq) error {
 	defer a.Log().Trace("Progress done")
 
+	err := a.waitProgressable(ctx, req.Params.ID())
+	if err != nil {
+		return err
+	}
+
 	// Build Dispute Tx.
 	ext, err := a.pallet.BuildProgress(a.onChain, req.Params, req.NewState, req.Sig, req.Idx)
 	if err != nil {
@@ -140,6 +145,18 @@ loop:
 			return ctx.Err()
 		}
 	}
+}
+
+func (a *Adjudicator) waitProgressable(ctx context.Context, ch pchannel.ID) error {
+	// Fetch on-chain dispute.
+	dis, err := a.pallet.QueryStateRegister(ch, a.storage, a.pastBlocks)
+	if err != nil {
+		return err
+	}
+
+	// Wait for the dispute timeout.
+	timeout := channel.MakeTimeout(dis.Timeout, a.storage)
+	return timeout.Wait(ctx)
 }
 
 // waitForProgressed blocks until a Progressed event with version greater or equal to
